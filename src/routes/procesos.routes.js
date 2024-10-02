@@ -14,14 +14,18 @@ router.get('/processes', async (req, res) => {
     }
 });
 
-// Obtener los ids y nombres de los procesos
-router.get('/processes/names', async (req, res) => {
+// Obtener un proceso específico por ID
+router.get('/processes/:id', async (req, res) => {
+    const { id } = req.params;
     try {
-        const [rows] = await pool.query('SELECT id, nombre FROM procesos');
-        res.json(rows);  // Devuelve los ids y nombres
+        const [rows] = await pool.query('SELECT * FROM procesos WHERE id = ?', [id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Proceso no encontrado' });
+        }
+        res.json(rows[0]);  // Devolver solo el primer (y único) resultado
     } catch (error) {
-        console.error('Error al obtener los nombres de los procesos:', error);
-        res.status(500).json({ message: 'Error al obtener los nombres' });
+        console.error('Error al obtener el proceso por ID:', error);
+        res.status(500).json({ message: 'Error al obtener el proceso' });
     }
 });
 
