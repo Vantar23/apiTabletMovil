@@ -17,14 +17,13 @@ router.get('/processes', async (req, res) => {
 // Obtener los ids y nombres de los procesos
 router.get('/processes/names', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT id, nombre FROM procesos');
+        const [rows] = await pool.query('SELECT nombre FROM procesos');
         res.json(rows);  // Devuelve los ids y nombres
     } catch (error) {
         console.error('Error al obtener los nombres de los procesos:', error);
         res.status(500).json({ message: 'Error al obtener los nombres' });
     }
 });
-
 
 // Crear un nuevo proceso
 router.post('/processes', async (req, res) => {
