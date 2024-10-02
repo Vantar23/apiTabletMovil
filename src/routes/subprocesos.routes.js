@@ -15,6 +15,21 @@ router.get('/processes/:proceso_id/subprocesses', async (req, res) => {
     }
 });
 
+// Obtener un subproceso por su ID único
+router.get('/subprocesses/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [rows] = await pool.query('SELECT * FROM subprocesos WHERE id = ?', [id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Subproceso no encontrado' });
+        }
+        res.json(rows[0]); // Devolver solo el primer resultado, ya que el id es único
+    } catch (error) {
+        console.error('Error al obtener el subproceso:', error);
+        res.status(500).json({ message: 'Error al obtener el subproceso' });
+    }
+});
+
 // Crear un subproceso asociado a un proceso específico
 router.post('/processes/:proceso_id/subprocesses', async (req, res) => {
     const { proceso_id } = req.params;
