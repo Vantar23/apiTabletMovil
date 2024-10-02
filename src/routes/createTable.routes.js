@@ -3,30 +3,30 @@ import { pool } from '../db.js';  // Importa el pool de conexiones
 
 const router = Router();
 
-router.get('/create-table', async (req, res) => {
+router.get('/create-tables', async (req, res) => {
     try {
-        const createTableQuery = `
-            CREATE TABLE IF NOT EXISTS procesos (
+
+        // Crear la tabla de subprocesos con una relación a la tabla de procesos
+        const createSubprocesosTable = `
+            CREATE TABLE IF NOT EXISTS subprocesos (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 nombre VARCHAR(255),
                 descripcion VARCHAR(255),
-                estandar VARCHAR(255),
-                marca VARCHAR(255),
-                modelo VARCHAR(255),
-                serie VARCHAR(255),
-                resolucion DECIMAL(10, 2),
-                intervalo_indicacion VARCHAR(255),
-                calibrado_patron VARCHAR(255),
-                prox_calibracion_patron VARCHAR(255)
+                proceso_id INT,  -- Llave foránea que referencia a la tabla procesos
+                valor_referencia DECIMAL(5, 2),  -- Valor de referencia con 2 decimales
+                incertidumbre_patron DECIMAL(7, 4),  -- Incertidumbre patrón con 4 decimales
+                FOREIGN KEY (proceso_id) REFERENCES procesos(id) ON DELETE CASCADE
             );
         `;
 
-        // Ejecutar la consulta para crear la tabla
-        const [result] = await pool.query(createTableQuery);
-        res.status(200).json({ message: "Tabla 'procesos' creada o ya existente", result });
+        // Ejecutar la consulta para crear las tablas
+        await pool.query(createProcesosTable);
+        await pool.query(createSubprocesosTable);
+
+        res.status(200).json({ message: "Tablas 'procesos' y 'subprocesos' creadas o ya existentes" });
     } catch (error) {
-        console.error("Error al crear la tabla:", error);
-        res.status(500).json({ message: "Error al crear la tabla", error });
+        console.error("Error al crear las tablas:", error);
+        res.status(500).json({ message: "Error al crear las tablas", error });
     }
 });
 
