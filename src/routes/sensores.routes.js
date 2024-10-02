@@ -29,6 +29,23 @@ router.get('/sensores/:id', async (req, res) => {
     }
 });
 
+router.get('/sensores/macaddresses', async (req, res) => {
+    try {
+        // Obtener solo las mac_address de los sensores
+        const [rows] = await pool.query('SELECT mac_address FROM sensores');
+
+        // Extraer las MAC Addresses y unirlas con comas
+        const macAddresses = rows.map(row => row.mac_address).join(',');
+
+        // Devolver la cadena con las MAC Addresses separadas por comas
+        res.send(macAddresses);
+    } catch (error) {
+        console.error('Error al obtener las MAC Addresses:', error);
+        res.status(500).json({ message: 'Error al obtener las MAC Addresses', error });
+    }
+});
+
+
 // Crear un nuevo sensor
 router.post('/sensores', async (req, res) => {
     let { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
