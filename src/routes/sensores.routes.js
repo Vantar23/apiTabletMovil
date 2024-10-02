@@ -14,21 +14,6 @@ router.get('/sensores', async (req, res) => {
     }
 });
 
-// Obtener un sensor específico por ID
-router.get('/sensores/:id', async (req, res) => {
-    const { id } = req.params;
-    try {
-        const [rows] = await pool.query('SELECT * FROM sensores WHERE id = ?', [id]);
-        if (rows.length === 0) {
-            return res.status(404).json({ message: 'Sensor no encontrado' });
-        }
-        res.json(rows[0]);  // Devolver solo el primer (y único) resultado
-    } catch (error) {
-        console.error('Error al obtener el sensor por ID:', error);
-        res.status(500).json({ message: 'Error al obtener el sensor' });
-    }
-});
-
 router.get('/sensores/macaddresses', async (req, res) => {
     try {
         // Obtener solo las mac_address de los sensores
@@ -50,7 +35,20 @@ router.get('/sensores/macaddresses', async (req, res) => {
     }
 });
 
-
+// Obtener un sensor específico por ID
+router.get('/sensores/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [rows] = await pool.query('SELECT * FROM sensores WHERE id = ?', [id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Sensor no encontrado' });
+        }
+        res.json(rows[0]);  // Devolver solo el primer (y único) resultado
+    } catch (error) {
+        console.error('Error al obtener el sensor por ID:', error);
+        res.status(500).json({ message: 'Error al obtener el sensor' });
+    }
+});
 
 // Crear un nuevo sensor
 router.post('/sensores', async (req, res) => {
