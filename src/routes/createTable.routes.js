@@ -20,7 +20,6 @@ router.get('/create-tables', async (req, res) => {
         `;
 
         // Ejecutar la consulta para crear las tablas
-        await pool.query(createProcesosTable);
         await pool.query(createSubprocesosTable);
 
         res.status(200).json({ message: "Tablas 'procesos' y 'subprocesos' creadas o ya existentes" });
