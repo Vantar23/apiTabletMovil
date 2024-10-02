@@ -27,10 +27,10 @@ router.get('/processes/names', async (req, res) => {
 
 // Crear un nuevo proceso
 router.post('/processes', async (req, res) => {
-    const { nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron } = req.body;
+    const { nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion } = req.body;
     try {
-        const result = await pool.query('INSERT INTO procesos (nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-        [nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron]);
+        const result = await pool.query('INSERT INTO procesos (nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+        [nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion]);
         res.json({ id: result.insertId, message: 'Proceso creado con éxito' });
     } catch (error) {
         console.error('Error al crear proceso:', error);
