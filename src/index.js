@@ -1,11 +1,8 @@
 import express from 'express';
-import procesosRoutes from './routes/procesos.routes.js';  // Importa las rutas de procesos
-import subprocesosRoutes from './routes/subprocesos.routes.js';  // Importa las rutas de subprocesos
-import indexRoutes from './routes/index.routes.js';  // Importa la ruta del ping
-import dotenv from 'dotenv';
-
-// Cargar las variables de entorno desde el archivo .env
-dotenv.config();
+import procesosRoutes from './routes/procesos.routes.js';
+import subprocesosRoutes from './routes/subprocesos.routes.js';
+import indexRoutes from './routes/index.routes.js';
+import createTableRoutes from './routes/createTable.routes.js';  // Importa la nueva ruta
 
 const app = express();
 
@@ -13,11 +10,12 @@ const app = express();
 app.use(express.json());
 
 // Rutas
-app.use(indexRoutes);  // Ruta para ping
-app.use(procesosRoutes);  // Rutas para procesos
-app.use(subprocesosRoutes);  // Rutas para subprocesos
+app.use(indexRoutes);  // Ruta de ping
+app.use(procesosRoutes);  // Rutas de procesos
+app.use(subprocesosRoutes);  // Rutas de subprocesos
+app.use(createTableRoutes);  // Ruta para crear la tabla
 
-// Poner a escuchar el servidor en el puerto definido en el archivo .env o el 3000 por defecto
+// Poner a escuchar el servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
