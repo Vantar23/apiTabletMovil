@@ -24,16 +24,17 @@ router.get('/sensores/macaddresses', async (req, res) => {
             return res.status(404).json({ message: 'No se encontraron sensores con MAC Addresses' });
         }
 
-        // Extraer las MAC Addresses y unirlas con comas
-        const macAddresses = rows.map(row => row.mac_address).join(',');
+        // Extraer las MAC Addresses y unirlas con comillas dobles y separadas por comas
+        const macAddresses = rows.map(row => `"${row.mac_address}"`).join(',');
 
-        // Devolver la cadena con las MAC Addresses separadas por comas
+        // Devolver la cadena con las MAC Addresses en el formato deseado
         res.send(macAddresses);
     } catch (error) {
         console.error('Error al obtener las MAC Addresses:', error.message);
         res.status(500).json({ message: 'Error al obtener las MAC Addresses', error: error.message });
     }
 });
+
 
 // Obtener un sensor específico por ID
 router.get('/sensores/:id', async (req, res) => {
