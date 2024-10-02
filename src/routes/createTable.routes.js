@@ -3,36 +3,35 @@ import { pool } from '../db.js';  // Importa el pool de conexiones
 
 const router = Router();
 
-router.get('/create-tables', async (req, res) => {
+router.get('/alter-sensores-table', async (req, res) => {
     try {
-        // Crear la tabla de sensores
-        const createSensoresTable = `
-            CREATE TABLE IF NOT EXISTS sensores (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                nombre_sensor VARCHAR(255),
-                mac_address VARCHAR(255),
-                instrumento VARCHAR(255),
-                marca VARCHAR(255),
-                modelo VARCHAR(255),
-                serie VARCHAR(255),
-                resolucion VARCHAR(255),
-                intervalo_indicacion VARCHAR(255),
-                emp VARCHAR(255),
-                temp_inicial DECIMAL(5,2),
-                temp_final DECIMAL(5,2),
-                humedad_relativa_inicial DECIMAL(5,2),
-                humedad_relativa_final DECIMAL(5,2),
-                presion_atmosferica DECIMAL(7,4),
-                numero_informe VARCHAR(255)
-            );
+        // Alterar la tabla de sensores para que todos los campos sean VARCHAR(255)
+        const alterSensoresTable = `
+            ALTER TABLE sensores
+            MODIFY COLUMN nombre_sensor VARCHAR(255),
+            MODIFY COLUMN mac_address VARCHAR(255),
+            MODIFY COLUMN instrumento VARCHAR(255),
+            MODIFY COLUMN marca VARCHAR(255),
+            MODIFY COLUMN modelo VARCHAR(255),
+            MODIFY COLUMN serie VARCHAR(255),
+            MODIFY COLUMN resolucion VARCHAR(255),
+            MODIFY COLUMN intervalo_indicacion VARCHAR(255),
+            MODIFY COLUMN emp VARCHAR(255),
+            MODIFY COLUMN temp_inicial VARCHAR(255),
+            MODIFY COLUMN temp_final VARCHAR(255),
+            MODIFY COLUMN humedad_relativa_inicial VARCHAR(255),
+            MODIFY COLUMN humedad_relativa_final VARCHAR(255),
+            MODIFY COLUMN presion_atmosferica VARCHAR(255),
+            MODIFY COLUMN numero_informe VARCHAR(255);
         `;
-        // Ejecutar la consulta para crear la tabla
-        await pool.query(createSensoresTable);
 
-        res.status(200).json({ message: "Tabla 'sensores' creada o ya existente" });
+        // Ejecutar la consulta para alterar la tabla
+        await pool.query(alterSensoresTable);
+
+        res.status(200).json({ message: "La tabla 'sensores' fue alterada exitosamente para que todas las columnas sean VARCHAR(255)." });
     } catch (error) {
-        console.error("Error al crear la tabla 'sensores':", error);
-        res.status(500).json({ message: "Error al crear la tabla 'sensores'", error });
+        console.error("Error al alterar la tabla 'sensores':", error);
+        res.status(500).json({ message: "Error al alterar la tabla 'sensores'", error });
     }
 });
 
