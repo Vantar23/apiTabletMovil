@@ -31,7 +31,11 @@ router.get('/sensores/:id', async (req, res) => {
 
 // Crear un nuevo sensor
 router.post('/sensores', async (req, res) => {
-    const { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
+    let { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
+    
+    // Formatear la MAC Address
+    mac_address = formatMacAddress(mac_address);
+    
     try {
         const result = await pool.query(
             `INSERT INTO sensores (nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe) 
@@ -44,6 +48,12 @@ router.post('/sensores', async (req, res) => {
         res.status(500).json({ message: 'Error al crear el sensor', error });
     }
 });
+
+
+// Función para formatear la MAC Address
+const formatMacAddress = (mac) => {
+    return mac.match(/.{1,2}/g).join(':').toUpperCase();
+};
 
 
 // Editar un sensor por ID
