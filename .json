@@ -1,0 +1,106 @@
+[
+    {
+        "id": 6,
+        "nombre": "Proceso B",
+        "descripcion": "Este es el proceso B",
+        "estandar": "ISO9001",
+        "marca": "Marca X",
+        "modelo": "Modelo Y",
+        "serie": "12345",
+        "resolucion": "0.01",
+        "intervalo_indicacion": "Cada 6 meses",
+        "calibrado_patron": "Sí",
+        "prox_calibracion_patron": "2025-01-01",
+        "fecha_verificacion": "2024-10-02",
+        "proxima_verificacion": "2025-10-02",
+        "subprocesos": [
+            {
+                "id": 11,
+                "nombre": "Subproceso 2",
+                "descripcion": "Subproceso 2",
+                "valor_referencia": "-36.00",
+                "incertidumbre_patron": "0.0600",
+                "estatus": 1,
+                "fecha_verificacion": null,
+                "proxima_verificacion": null
+            },
+            {
+                "id": 12,
+                "nombre": "Subproceso 3",
+                "descripcion": "Subproceso 3",
+                "valor_referencia": "45.00",
+                "incertidumbre_patron": "0.0200",
+                "estatus": 0,
+                "fecha_verificacion": "2024-05-20",
+                "proxima_verificacion": "2025-05-20"
+            }
+        ],
+        "sensores": [
+            {
+                "id": 2,
+                "nombre_sensor": "Sensor de Prueba",
+                "mac_address": "00:1B:44:11:3A:B7",
+                "instrumento": "Multímetro",
+                "marca": "Fluke",
+                "modelo": "T1000",
+                "serie": "123456789",
+                "resolucion": "0.01",
+                "intervalo_indicacion": "Cada 6 meses",
+                "emp": "1.0",
+                "temp_inicial": "25.00",
+                "temp_final": "30.00",
+                "humedad_relativa_inicial": "45.00",
+                "humedad_relativa_final": "50.00",
+                "presion_atmosferica": "1013.25",
+                "numero_informe": "Informe001"
+            }
+        ]
+    },
+    {
+        "id": 7,
+        "nombre": "Proceso C",
+        "descripcion": "Este es el proceso C",
+        "estandar": "ISO14001",
+        "marca": "Marca Y",
+        "modelo": "Modelo Z",
+        "serie": "67890",
+        "resolucion": "0.02",
+        "intervalo_indicacion": "Cada 12 meses",
+        "calibrado_patron": "No",
+        "prox_calibracion_patron": "2026-01-01",
+        "fecha_verificacion": "2024-10-10",
+        "proxima_verificacion": "2025-10-10",
+        "subprocesos": [
+            {
+                "id": 21,
+                "nombre": "Subproceso 1",
+                "descripcion": "Subproceso de control",
+                "valor_referencia": "50.00",
+                "incertidumbre_patron": "0.0300",
+                "estatus": 1,
+                "fecha_verificacion": "2024-06-15",
+                "proxima_verificacion": "2025-06-15"
+            }
+        ],
+        "sensores": [
+            {
+                "id": 3,
+                "nombre_sensor": "Sensor XYZ",
+                "mac_address": "ED:A7:E6:DF:B8:17",
+                "instrumento": "Calibrador",
+                "marca": "Brand Y",
+                "modelo": "C2000",
+                "serie": "987654321",
+                "resolucion": "0.005",
+                "intervalo_indicacion": "Cada 12 meses",
+                "emp": "0.5",
+                "temp_inicial": "22.00",
+                "temp_final": "28.00",
+                "humedad_relativa_inicial": "40.00",
+                "humedad_relativa_final": "45.00",
+                "presion_atmosferica": "1012.50",
+                "numero_informe": "Informe002"
+            }
+        ]
+    }
+]
