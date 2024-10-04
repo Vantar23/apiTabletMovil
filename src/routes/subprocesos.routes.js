@@ -3,6 +3,17 @@ import { pool } from '../db.js';
 
 const router = Router();
 
+// Obtener todos los subprocesos sin filtrar por proceso
+router.get('/subprocesses', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM subprocesos');
+        res.json(rows);
+    } catch (error) {
+        console.error('Error al obtener todos los subprocesos:', error);
+        res.status(500).json({ message: 'Error al obtener los subprocesos' });
+    }
+});
+
 // Obtener todos los subprocesos de un proceso específico
 router.get('/processes/:proceso_id/subprocesses', async (req, res) => {
     const { proceso_id } = req.params;

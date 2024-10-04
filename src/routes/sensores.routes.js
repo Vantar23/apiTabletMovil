@@ -1,93 +1,114 @@
 import { Router } from 'express';
-import { pool } from '../db.js';
+import { pool } from '../db.js';  // Asegúrate de que la conexión a la base de datos esté correctamente exportada
 
 const router = Router();
 
-// Obtener todos los subprocesos sin filtrar por proceso
-router.get('/subprocesses', async (req, res) => {
+// Obtener todos los sensores
+router.get('/sensores', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM subprocesos');
+        const [rows] = await pool.query('SELECT * FROM sensores');
         res.json(rows);
     } catch (error) {
-        console.error('Error al obtener todos los subprocesos:', error);
-        res.status(500).json({ message: 'Error al obtener los subprocesos' });
+        console.error('Error al obtener los sensores:', error);
+        res.status(500).json({ message: 'Error al obtener los sensores' });
     }
 });
 
-// Obtener todos los subprocesos de un proceso específico
-router.get('/processes/:proceso_id/subprocesses', async (req, res) => {
-    const { proceso_id } = req.params;
+router.get('/sensores/macaddresses', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM subprocesos WHERE proceso_id = ?', [proceso_id]);
-        res.json(rows);
-    } catch (error) {
-        console.error('Error al obtener los subprocesos:', error);
-        res.status(500).json({ message: 'Error al obtener los subprocesos' });
-    }
-});
+        // Obtener solo las mac_address de los sensores
+        const [rows] = await pool.query('SELECT mac_address FROM sensores');
 
-// Obtener un subproceso por su ID único
-router.get('/subprocesses/:id', async (req, res) => {
-    const { id } = req.params;
-    try {
-        const [rows] = await pool.query('SELECT * FROM subprocesos WHERE id = ?', [id]);
+        // Verificar si se encontraron MAC Addresses
         if (rows.length === 0) {
-            return res.status(404).json({ message: 'Subproceso no encontrado' });
+            return res.status(404).json({ message: 'No se encontraron sensores con MAC Addresses' });
         }
-        res.json(rows[0]); // Devolver solo el primer resultado, ya que el id es único
+
+        // Extraer las MAC Addresses y unirlas con comillas dobles y separadas por comas
+        const macAddresses = rows.map(row => `"${row.mac_address}"`).join(',');
+
+        // Devolver la cadena con las MAC Addresses en el formato deseado
+        res.send(macAddresses);
     } catch (error) {
-        console.error('Error al obtener el subproceso:', error);
-        res.status(500).json({ message: 'Error al obtener el subproceso' });
+        console.error('Error al obtener las MAC Addresses:', error.message);
+        res.status(500).json({ message: 'Error al obtener las MAC Addresses', error: error.message });
     }
 });
 
-// Crear un subproceso asociado a un proceso específico
-router.post('/processes/:proceso_id/subprocesses', async (req, res) => {
-    const { proceso_id } = req.params;
-    const { nombre, descripcion, valor_referencia, incertidumbre_patron } = req.body;
-    try {
-        const result = await pool.query(
-            'INSERT INTO subprocesos (nombre, descripcion, proceso_id, valor_referencia, incertidumbre_patron) VALUES (?, ?, ?, ?, ?)',
-            [nombre, descripcion, proceso_id, valor_referencia, incertidumbre_patron]
-        );
-        res.json({ id: result.insertId, message: 'Subproceso creado con éxito' });
-    } catch (error) {
-        console.error('Error al crear el subproceso:', error);
-        res.status(500).json({ message: 'Error al crear el subproceso' });
-    }
-});
 
-// Editar un subproceso por su ID
-router.put('/subprocesses/:id', async (req, res) => {
-    const { id } = req.params;
-    const { nombre, descripcion, valor_referencia, incertidumbre_patron } = req.body;
-    try {
-        const result = await pool.query(
-            'UPDATE subprocesos SET nombre = ?, descripcion = ?, valor_referencia = ?, incertidumbre_patron = ? WHERE id = ?',
-            [nombre, descripcion, valor_referencia, incertidumbre_patron, id]
-        );
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Subproceso no encontrado' });
-        }
-        res.json({ message: 'Subproceso actualizado con éxito' });
-    } catch (error) {
-        console.error('Error al actualizar el subproceso:', error);
-        res.status(500).json({ message: 'Error al actualizar el subproceso' });
-    }
-});
-
-// Eliminar un subproceso por su ID
-router.delete('/subprocesses/:id', async (req, res) => {
+// Obtener un sensor específico por ID
+router.get('/sensores/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        const result = await pool.query('DELETE FROM subprocesos WHERE id = ?', [id]);
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Subproceso no encontrado' });
+        const [rows] = await pool.query('SELECT * FROM sensores WHERE id = ?', [id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Sensor no encontrado' });
         }
-        res.json({ message: 'Subproceso eliminado con éxito' });
+        res.json(rows[0]);  // Devolver solo el primer (y único) resultado
     } catch (error) {
-        console.error('Error al eliminar el subproceso:', error);
-        res.status(500).json({ message: 'Error al eliminar el subproceso' });
+        console.error('Error al obtener el sensor por ID:', error);
+        res.status(500).json({ message: 'Error al obtener el sensor' });
+    }
+});
+
+// Crear un nuevo sensor
+router.post('/sensores', async (req, res) => {
+    let { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
+    
+    // Formatear la MAC Address
+    mac_address = formatMacAddress(mac_address);
+    
+    try {
+        const result = await pool.query(
+            `INSERT INTO sensores (nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+            [nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe]
+        );
+        res.json({ id: result.insertId, message: 'Sensor creado con éxito' });
+    } catch (error) {
+        console.error('Error al crear el sensor:', error);
+        res.status(500).json({ message: 'Error al crear el sensor', error });
+    }
+});
+
+
+// Función para formatear la MAC Address
+const formatMacAddress = (mac) => {
+    return mac.match(/.{1,2}/g).join(':').toUpperCase();
+};
+
+
+// Editar un sensor por ID
+router.put('/sensores/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
+    try {
+        const result = await pool.query(
+            'UPDATE sensores SET nombre_sensor = ?, mac_address = ?, instrumento = ?, marca = ?, modelo = ?, serie = ?, resolucion = ?, intervalo_indicacion = ?, emp = ?, temp_inicial = ?, temp_final = ?, humedad_relativa_inicial = ?, humedad_relativa_final = ?, presion_atmosferica = ?, numero_informe = ? WHERE id = ?', 
+            [nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id]
+        );
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Sensor no encontrado' });
+        }
+        res.json({ message: 'Sensor actualizado con éxito' });
+    } catch (error) {
+        console.error('Error al actualizar el sensor:', error);
+        res.status(500).json({ message: 'Error al actualizar el sensor' });
+    }
+});
+
+// Eliminar un sensor por ID
+router.delete('/sensores/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query('DELETE FROM sensores WHERE id = ?', [id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Sensor no encontrado' });
+        }
+        res.json({ message: 'Sensor eliminado con éxito' });
+    } catch (error) {
+        console.error('Error al eliminar el sensor:', error);
+        res.status(500).json({ message: 'Error al eliminar el sensor' });
     }
 });
 
