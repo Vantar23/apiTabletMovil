@@ -46,13 +46,14 @@ router.post('/processes', async (req, res) => {
             'INSERT INTO procesos (nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
             [nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion]
         );
-        // Devuelve solo el ID del proceso creado
-        res.json({ id: result.insertId });
+        // Devuelve el ID y el nombre del proceso creado
+        res.json({ id: result.insertId, nombre: nombre });
     } catch (error) {
         console.error('Error al crear proceso:', error);
         res.status(500).json({ message: 'Error al crear el proceso' });
     }
 });
+
 
 // Editar un proceso por ID
 router.put('/processes/:id', async (req, res) => {
