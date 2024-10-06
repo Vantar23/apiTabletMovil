@@ -19,20 +19,17 @@ router.put('/estatus/:id', async (req, res) => {
         const [subprocesos] = await pool.query('SELECT * FROM subprocesos WHERE proceso_id = ?', [proceso[0].id]);
         const [sensores] = await pool.query('SELECT * FROM sensores WHERE id_proceso = ?', [proceso[0].id]);
 
-        // Función para devolver espacio en blanco si el valor es nulo o vacío
-        const safeValue = (value) => (value ? value : " ");
-
         // Construir la cadena de proceso
-        let cadena = `${safeValue(proceso[0].id)},${safeValue(proceso[0].nombre)},${safeValue(proceso[0].descripcion)},${safeValue(proceso[0].estandar)},${safeValue(proceso[0].marca)},${safeValue(proceso[0].modelo)},${safeValue(proceso[0].serie)},${safeValue(proceso[0].resolucion)},${safeValue(proceso[0].intervalo_indicacion)},${safeValue(proceso[0].calibrado_patron)},${safeValue(proceso[0].prox_calibracion_patron)},${safeValue(proceso[0].fecha_verificacion)},${safeValue(proceso[0].proxima_verificacion)},$`;
+        let cadena = `${proceso[0].id},${proceso[0].nombre || ''},${proceso[0].descripcion || ''},${proceso[0].estandar || ''},${proceso[0].marca || ''},${proceso[0].modelo || ''},${proceso[0].serie || ''},${proceso[0].resolucion || ''},${proceso[0].intervalo_indicacion || ''},${proceso[0].calibrado_patron || ''},${proceso[0].prox_calibracion_patron || ''},${proceso[0].fecha_verificacion || ''},${proceso[0].proxima_verificacion || ''},$`;
 
-        // Agregar subprocesos a la cadena
+        // Agregar subprocesos a la cadena (excluyendo las columnas de fecha_verificacion y proxima_verificacion)
         subprocesos.forEach(sub => {
-            cadena += `${safeValue(sub.id)},${safeValue(sub.nombre)},${safeValue(sub.descripcion)},${safeValue(sub.valor_referencia)},${safeValue(sub.incertidumbre_patron)},${safeValue(sub.estatus)},${safeValue(sub.fecha_verificacion)},${safeValue(sub.proxima_verificacion)},$`;
+            cadena += `${sub.id},${sub.nombre || ''},${sub.descripcion || ''},${sub.valor_referencia || ''},${sub.incertidumbre_patron || ''},${sub.estatus || ''},$`;
         });
 
         // Agregar sensores a la cadena
         sensores.forEach(sensor => {
-            cadena += `!${safeValue(sensor.id)},${safeValue(sensor.nombre_sensor)},${safeValue(sensor.mac_address)},${safeValue(sensor.instrumento)},${safeValue(sensor.marca)},${safeValue(sensor.modelo)},${safeValue(sensor.serie)},${safeValue(sensor.resolucion)},${safeValue(sensor.intervalo_indicacion)},${safeValue(sensor.emp)},${safeValue(sensor.temp_inicial)},${safeValue(sensor.temp_final)},${safeValue(sensor.humedad_relativa_inicial)},${safeValue(sensor.humedad_relativa_final)},${safeValue(sensor.presion_atmosferica)},${safeValue(sensor.numero_informe)},`;
+            cadena += `!${sensor.id},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.serie || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},${sensor.temp_inicial || ''},${sensor.temp_final || ''},${sensor.humedad_relativa_inicial || ''},${sensor.humedad_relativa_final || ''},${sensor.presion_atmosferica || ''},${sensor.numero_informe || ''},`;
         });
 
         // Enviar la respuesta con la cadena construida
