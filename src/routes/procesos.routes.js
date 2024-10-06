@@ -10,12 +10,18 @@ router.get('/processes', async (req, res) => {
         if (rows.length === 0) {
             return res.status(204).json({ message: 'No hay procesos disponibles' });  // 204 No Content
         }
+        // Si quieres devolver solo el primer objeto en caso de que sea un solo proceso
+        if (rows.length === 1) {
+            return res.json(rows[0]);  // Devuelve el único objeto sin []
+        }
+        // Si hay más de un proceso, devolver todos
         res.json(rows);
     } catch (error) {
         console.error('Error al obtener los procesos:', error);
         res.status(500).json({ message: 'Error al obtener los procesos' });
     }
 });
+
 
 // Obtener un proceso específico por ID
 router.get('/processes/:id', async (req, res) => {
