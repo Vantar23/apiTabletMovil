@@ -42,11 +42,12 @@ router.get('/processes/:id', async (req, res) => {
 router.post('/processes', async (req, res) => {
     const { nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion } = req.body;
     try {
-        const result = await pool.query(
+        const [result] = await pool.query(
             'INSERT INTO procesos (nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
             [nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion]
         );
-        res.json({ id: result.insertId, message: 'Proceso creado con éxito' });
+        // Devuelve solo el ID del proceso creado
+        res.json({ id: result.insertId });
     } catch (error) {
         console.error('Error al crear proceso:', error);
         res.status(500).json({ message: 'Error al crear el proceso' });
