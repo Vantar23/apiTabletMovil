@@ -6,14 +6,14 @@ const router = Router();
 // Limpiar las tablas procesos, subprocesos y sensores
 router.get('/clean-database', async (req, res) => {
     try {
-        // Truncar (limpiar) la tabla de sensores
-        await pool.query('TRUNCATE TABLE sensores');
+        // Eliminar registros de la tabla de sensores
+        await pool.query('DELETE FROM sensores');
 
-        // Truncar (limpiar) la tabla de subprocesos
-        await pool.query('TRUNCATE TABLE subprocesos');
+        // Eliminar registros de la tabla de subprocesos
+        await pool.query('DELETE FROM subprocesos');
 
-        // Truncar (limpiar) la tabla de procesos
-        await pool.query('TRUNCATE TABLE procesos');
+        // Eliminar registros de la tabla de procesos
+        await pool.query('DELETE FROM procesos');
 
         res.status(200).json({ message: 'Las tablas procesos, subprocesos y sensores han sido limpiadas con éxito.' });
     } catch (error) {
