@@ -55,9 +55,10 @@ router.put('/estatus/:id', async (req, res) => {
 
         res.json({ message: 'Estatus de subproceso actualizado con éxito', cadena });
     } catch (error) {
-        console.error('Error al actualizar el estatus del subproceso:', error);
-        res.status(500).json({ message: 'Error al actualizar el estatus del subproceso' });
+        console.error('Error al actualizar el estatus del subproceso:', error); // Mostrar el error exacto en la consola
+        res.status(500).json({ message: 'Error al actualizar el estatus del subproceso', error: error.message });
     }
 });
+
 
 export default router;
