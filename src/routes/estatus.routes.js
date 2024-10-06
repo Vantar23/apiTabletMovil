@@ -8,16 +8,25 @@ router.put('/estatus/:id', async (req, res) => {
     const { estatus } = req.body;
 
     try {
-        // Actualizar el estatus
+        // Actualizar el estatus del subproceso
         const result = await pool.query('UPDATE subprocesos SET estatus = ? WHERE id = ?', [estatus, id]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Subproceso no encontrado' });
         }
 
-        // Obtener datos del proceso, subprocesos y sensores relacionados
+        // Obtener datos del proceso al cual pertenece el subproceso
         const [proceso] = await pool.query('SELECT * FROM procesos WHERE id = (SELECT proceso_id FROM subprocesos WHERE id = ?)', [id]);
+
+        // Verificar que el proceso exista
+        if (!proceso.length) {
+            return res.status(404).json({ message: 'Proceso no encontrado' });
+        }
+
+        // Obtener todos los subprocesos relacionados con ese proceso
         const [subprocesos] = await pool.query('SELECT * FROM subprocesos WHERE proceso_id = ?', [proceso[0].id]);
-        const [sensores] = await pool.query('SELECT * FROM sensores WHERE id IN (SELECT sensor_id FROM proceso_sensor WHERE proceso_id = ?)', [proceso[0].id]);
+
+        // Obtener todos los sensores relacionados con ese proceso
+        const [sensores] = await pool.query('SELECT * FROM sensores WHERE id_proceso = ?', [proceso[0].id]);
 
         // Construir la cadena de proceso
         let cadena = `${proceso[0].id},${proceso[0].nombre},${proceso[0].descripcion},${proceso[0].estandar},${proceso[0].marca},${proceso[0].modelo},${proceso[0].serie},${proceso[0].resolucion},${proceso[0].intervalo_indicacion},${proceso[0].calibrado_patron},${proceso[0].prox_calibracion_patron},${proceso[0].fecha_verificacion},${proceso[0].proxima_verificacion},$`;
