@@ -44,11 +44,11 @@ router.get('/subprocesses/:id', async (req, res) => {
 // Crear un subproceso asociado a un proceso específico
 router.post('/processes/:proceso_id/subprocesses', async (req, res) => {
     const { proceso_id } = req.params;
-    const { nombre, descripcion, valor_referencia, incertidumbre_patron } = req.body;
+    const { nombre, descripcion, valor_referencia, incertidumbre_patron, estatus } = req.body;  // Agregamos estatus al body
     try {
         const result = await pool.query(
-            'INSERT INTO subprocesos (nombre, descripcion, proceso_id, valor_referencia, incertidumbre_patron) VALUES (?, ?, ?, ?, ?)',
-            [nombre, descripcion, proceso_id, valor_referencia, incertidumbre_patron]
+            'INSERT INTO subprocesos (nombre, descripcion, proceso_id, valor_referencia, incertidumbre_patron, estatus) VALUES (?, ?, ?, ?, ?, ?)',
+            [nombre, descripcion, proceso_id, valor_referencia, incertidumbre_patron, estatus]
         );
         res.json({ id: result.insertId, message: 'Subproceso creado con éxito' });
     } catch (error) {
@@ -60,11 +60,11 @@ router.post('/processes/:proceso_id/subprocesses', async (req, res) => {
 // Editar un subproceso por su ID
 router.put('/subprocesses/:id', async (req, res) => {
     const { id } = req.params;
-    const { nombre, descripcion, valor_referencia, incertidumbre_patron } = req.body;
+    const { nombre, descripcion, valor_referencia, incertidumbre_patron, estatus } = req.body;  // Incluimos estatus
     try {
         const result = await pool.query(
-            'UPDATE subprocesos SET nombre = ?, descripcion = ?, valor_referencia = ?, incertidumbre_patron = ? WHERE id = ?',
-            [nombre, descripcion, valor_referencia, incertidumbre_patron, id]
+            'UPDATE subprocesos SET nombre = ?, descripcion = ?, valor_referencia = ?, incertidumbre_patron = ?, estatus = ? WHERE id = ?',
+            [nombre, descripcion, valor_referencia, incertidumbre_patron, estatus, id]
         );
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Subproceso no encontrado' });
