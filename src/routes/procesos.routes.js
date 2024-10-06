@@ -63,18 +63,26 @@ router.put('/processes/:id', async (req, res) => {
     }
 });
 
-// Eliminar un proceso por ID
+// Eliminar un proceso por ID, junto con los subprocesos y sensores relacionados
 router.delete('/processes/:id', async (req, res) => {
     const { id } = req.params;
     try {
+        // Primero eliminar los sensores relacionados
+        await pool.query('DELETE FROM sensores WHERE id_proceso = ?', [id]);
+
+        // Luego eliminar los subprocesos relacionados
+        await pool.query('DELETE FROM subprocesos WHERE proceso_id = ?', [id]);
+
+        // Finalmente, eliminar el proceso en sí
         const result = await pool.query('DELETE FROM procesos WHERE id = ?', [id]);
+
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Proceso no encontrado' });
         }
-        res.json({ message: 'Proceso eliminado con éxito' });
+        res.json({ message: 'Proceso y todos los subprocesos y sensores eliminados con éxito' });
     } catch (error) {
-        console.error('Error al eliminar el proceso:', error);
-        res.status(500).json({ message: 'Error al eliminar el proceso' });
+        console.error('Error al eliminar el proceso, subprocesos y sensores:', error);
+        res.status(500).json({ message: 'Error al eliminar el proceso, subprocesos y sensores', error });
     }
 });
 
