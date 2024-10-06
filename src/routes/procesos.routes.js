@@ -7,6 +7,9 @@ const router = Router();
 router.get('/processes', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM procesos');
+        if (rows.length === 0) {
+            return res.status(204).json({ message: 'No hay procesos disponibles' });  // 204 No Content
+        }
         res.json(rows);
     } catch (error) {
         console.error('Error al obtener los procesos:', error);
