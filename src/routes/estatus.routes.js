@@ -1,61 +1,44 @@
-// Editar el estatus de un subproceso por ID
+import { Router } from 'express';
+import { pool } from '../db.js';
+
+const router = Router();
+
 router.put('/estatus/:id', async (req, res) => {
-    const { id } = req.params;  // Este es el ID del subproceso
-    const { estatus } = req.body;  // Recibe el nuevo estatus desde el body
+    const { id } = req.params;
+    const { estatus } = req.body;
+
     try {
-        // Actualizar el estatus del subproceso
+        // Actualizar el estatus
         const result = await pool.query('UPDATE subprocesos SET estatus = ? WHERE id = ?', [estatus, id]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Subproceso no encontrado' });
         }
 
-        // Obtener el subproceso, incluyendo el proceso_id relacionado
-        const [subprocesoRows] = await pool.query('SELECT proceso_id FROM subprocesos WHERE id = ?', [id]);
-        if (subprocesoRows.length === 0) {
-            return res.status(404).json({ message: 'Subproceso no encontrado' });
-        }
-        
-        const proceso_id = subprocesoRows[0].proceso_id;  // ID del proceso relacionado
+        // Obtener datos del proceso, subprocesos y sensores relacionados
+        const [proceso] = await pool.query('SELECT * FROM procesos WHERE id = (SELECT proceso_id FROM subprocesos WHERE id = ?)', [id]);
+        const [subprocesos] = await pool.query('SELECT * FROM subprocesos WHERE proceso_id = ?', [proceso[0].id]);
+        const [sensores] = await pool.query('SELECT * FROM sensores WHERE id IN (SELECT sensor_id FROM proceso_sensor WHERE proceso_id = ?)', [proceso[0].id]);
 
-        // Construir la cadena de texto a partir del proceso_id
-        const cadena = await construirCadena(proceso_id);
+        // Construir la cadena de proceso
+        let cadena = `${proceso[0].id},${proceso[0].nombre},${proceso[0].descripcion},${proceso[0].estandar},${proceso[0].marca},${proceso[0].modelo},${proceso[0].serie},${proceso[0].resolucion},${proceso[0].intervalo_indicacion},${proceso[0].calibrado_patron},${proceso[0].prox_calibracion_patron},${proceso[0].fecha_verificacion},${proceso[0].proxima_verificacion},$`;
 
-        res.json({ message: 'Estatus de subproceso actualizado con éxito', cadena });
+        // Agregar subprocesos a la cadena
+        subprocesos.forEach(sub => {
+            cadena += `${sub.id},${sub.nombre},${sub.descripcion},${sub.valor_referencia},${sub.incertidumbre_patron},${sub.estatus},${sub.fecha_verificacion || ''},${sub.proxima_verificacion || ''},$`;
+        });
+
+        // Agregar sensores a la cadena
+        sensores.forEach(sensor => {
+            cadena += `!${sensor.id},${sensor.nombre_sensor},${sensor.mac_address},${sensor.instrumento},${sensor.marca},${sensor.modelo},${sensor.serie},${sensor.resolucion},${sensor.intervalo_indicacion},${sensor.emp},${sensor.temp_inicial},${sensor.temp_final},${sensor.humedad_relativa_inicial},${sensor.humedad_relativa_final},${sensor.presion_atmosferica},${sensor.numero_informe},`;
+        });
+
+        // Enviar la respuesta con la cadena construida
+        res.json({ message: 'Estatus actualizado con éxito', cadena });
+
     } catch (error) {
-        console.error('Error al actualizar el estatus del subproceso:', error); // Mostrar el error exacto en la consola
+        console.error('Error al actualizar el estatus del subproceso:', error);
         res.status(500).json({ message: 'Error al actualizar el estatus del subproceso', error: error.message });
     }
 });
 
-// Función para construir la cadena del proceso, subprocesos y sensores
-async function construirCadena(proceso_id) {
-    try {
-        // Obtener la información del proceso
-        const [procesoRows] = await pool.query('SELECT * FROM procesos WHERE id = ?', [proceso_id]);
-        const proceso = procesoRows[0];
-
-        // Obtener los subprocesos asociados al proceso
-        const [subprocesosRows] = await pool.query('SELECT * FROM subprocesos WHERE proceso_id = ?', [proceso_id]);
-
-        // Obtener los sensores asociados al proceso
-        const [sensoresRows] = await pool.query('SELECT * FROM sensores WHERE proceso_id = ?', [proceso_id]);
-
-        // Construir la cadena de texto
-        let cadena = `${proceso.id},${proceso.nombre},${proceso.descripcion},${proceso.estandar},${proceso.marca},${proceso.modelo},${proceso.serie},${proceso.resolucion},${proceso.intervalo_indicacion},${proceso.calibrado_patron},${proceso.prox_calibracion_patron},${proceso.fecha_verificacion},${proceso.proxima_verificacion},$`;
-
-        // Añadir subprocesos a la cadena
-        for (let subproceso of subprocesosRows) {
-            cadena += `${subproceso.id},${subproceso.nombre},${subproceso.descripcion},${subproceso.valor_referencia},${subproceso.incertidumbre_patron},${subproceso.estatus},${subproceso.fecha_verificacion || ''},${subproceso.proxima_verificacion || ''},$`;
-        }
-
-        // Añadir sensores a la cadena
-        for (let sensor of sensoresRows) {
-            cadena += `!${sensor.id},${sensor.nombre_sensor},${sensor.mac_address},${sensor.instrumento},${sensor.marca},${sensor.modelo},${sensor.serie},${sensor.resolucion},${sensor.intervalo_indicacion},${sensor.emp},${sensor.temp_inicial},${sensor.temp_final},${sensor.humedad_relativa_inicial},${sensor.humedad_relativa_final},${sensor.presion_atmosferica},${sensor.numero_informe}`;
-        }
-
-        return cadena;
-    } catch (error) {
-        console.error('Error al construir la cadena:', error);
-        throw new Error('Error al construir la cadena');
-    }
-}
+export default router;
