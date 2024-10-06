@@ -1,25 +1,24 @@
 import { Router } from 'express';
-import { pool } from '../db.js';
+import { pool } from '../db.js';  // Asegúrate de que la conexión a la base de datos esté correctamente exportada
 
 const router = Router();
 
-router.get('/add-id-proceso-to-sensores', async (req, res) => {
+router.get('/alter-subprocesos-table', async (req, res) => {
     try {
-        const alterSensoresTable = `
-            ALTER TABLE sensores 
-            ADD COLUMN id_proceso INT,
-            ADD CONSTRAINT fk_proceso
-            FOREIGN KEY (id_proceso) REFERENCES procesos(id)
-            ON DELETE CASCADE;
+        // Consulta para eliminar las columnas
+        const alterSubprocesosTable = `
+            ALTER TABLE subprocesos
+            DROP COLUMN fecha_verificacion,
+            DROP COLUMN proxima_verificacion;
         `;
 
         // Ejecutar la consulta para alterar la tabla
-        await pool.query(alterSensoresTable);
+        await pool.query(alterSubprocesosTable);
 
-        res.status(200).json({ message: "La columna 'id_proceso' fue agregada a la tabla 'sensores' con éxito." });
+        res.status(200).json({ message: "Las columnas 'fecha_verificacion' y 'proxima_verificacion' fueron eliminadas de la tabla 'subprocesos'." });
     } catch (error) {
-        console.error("Error al agregar la columna 'id_proceso' a la tabla 'sensores':", error);
-        res.status(500).json({ message: "Error al agregar la columna 'id_proceso'", error });
+        console.error("Error al alterar la tabla 'subprocesos':", error);
+        res.status(500).json({ message: "Error al alterar la tabla 'subprocesos'", error });
     }
 });
 
