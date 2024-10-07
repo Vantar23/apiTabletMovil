@@ -26,11 +26,8 @@ router.get('/sensores/macaddresses', async (req, res) => {
         // Extraer las MAC Addresses, envolverlas en comillas dobles y unirlas con comas
         const macAddresses = rows.map(row => `"${row.mac_address}"`).join(',');
 
-        // Envolver el resultado en corchetes para que sea una lista válida en formato JSON
-        const macAddressesFormatted = `[${macAddresses}]`;
-
-        // Devolver la cadena con las MAC Addresses en el formato deseado
-        res.send(macAddressesFormatted);
+        // Devolver la cadena con las MAC Addresses
+        res.send(macAddresses);
     } catch (error) {
         console.error('Error al obtener las MAC Addresses:', error.message);
         res.status(500).json({ message: 'Error al obtener las MAC Addresses', error: error.message });
