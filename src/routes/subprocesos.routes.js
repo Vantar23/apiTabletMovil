@@ -44,7 +44,11 @@ router.get('/subprocesses/:id', async (req, res) => {
 // Crear un subproceso asociado a un proceso específico
 router.post('/processes/:proceso_id/subprocesses', async (req, res) => {
     const { proceso_id } = req.params;
-    const { nombre, descripcion, valor_referencia, incertidumbre_patron, estatus } = req.body;  // Agregamos estatus al body
+    const { nombre, descripcion, valor_referencia, incertidumbre_patron } = req.body;
+    
+    // Valor predeterminado de estatus es 0
+    const estatus = 0;
+    
     try {
         const result = await pool.query(
             'INSERT INTO subprocesos (nombre, descripcion, proceso_id, valor_referencia, incertidumbre_patron, estatus) VALUES (?, ?, ?, ?, ?, ?)',
@@ -60,7 +64,7 @@ router.post('/processes/:proceso_id/subprocesses', async (req, res) => {
 // Editar un subproceso por su ID
 router.put('/subprocesses/:id', async (req, res) => {
     const { id } = req.params;
-    const { nombre, descripcion, valor_referencia, incertidumbre_patron, estatus } = req.body;  // Incluimos estatus
+    const { nombre, descripcion, valor_referencia, incertidumbre_patron, estatus } = req.body;
     try {
         const result = await pool.query(
             'UPDATE subprocesos SET nombre = ?, descripcion = ?, valor_referencia = ?, incertidumbre_patron = ?, estatus = ? WHERE id = ?',
