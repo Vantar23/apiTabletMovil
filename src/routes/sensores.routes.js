@@ -13,9 +13,10 @@ router.get('/sensores', async (req, res) => {
         res.status(500).json({ message: 'Error al obtener los sensores' });
     }
 });
+
+// Obtener solo las MAC addresses de los sensores
 router.get('/sensores/macaddresses', async (req, res) => {
     try {
-        // Obtener solo las mac_address de los sensores
         const [rows] = await pool.query('SELECT mac_address FROM sensores');
 
         // Verificar si se encontraron MAC Addresses
@@ -23,18 +24,16 @@ router.get('/sensores/macaddresses', async (req, res) => {
             return res.status(404).json({ message: 'No se encontraron sensores con MAC Addresses' });
         }
 
-        // Extraer las MAC Addresses, envolverlas en comillas dobles y unirlas con comas
-        const macAddresses = rows.map(row => `${row.mac_address}`).join(', ');
+        // Extraer las MAC Addresses y convertirlas a minúsculas
+        const macAddresses = rows.map(row => row.mac_address.toLowerCase()).join(', ');
 
-        // Devolver la cadena con las MAC Addresses
+        // Devolver la cadena con las MAC Addresses en minúsculas
         res.send(macAddresses);
     } catch (error) {
         console.error('Error al obtener las MAC Addresses:', error.message);
         res.status(500).json({ message: 'Error al obtener las MAC Addresses', error: error.message });
     }
 });
-
-
 
 // Obtener un sensor específico por ID
 router.get('/sensores/:id', async (req, res) => {
@@ -55,8 +54,8 @@ router.get('/sensores/:id', async (req, res) => {
 router.post('/sensores', async (req, res) => {
     let { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso } = req.body;
     
-    // Formatear la MAC Address
-    mac_address = formatMacAddress(mac_address);
+    // Formatear la MAC Address en minúsculas
+    mac_address = formatMacAddress(mac_address).toLowerCase();
     
     try {
         const result = await pool.query(
@@ -71,22 +70,23 @@ router.post('/sensores', async (req, res) => {
     }
 });
 
-
-
 // Función para formatear la MAC Address
 const formatMacAddress = (mac) => {
     return mac.match(/.{1,2}/g).join(':').toUpperCase();
 };
 
-
 // Editar un sensor por ID
 router.put('/sensores/:id', async (req, res) => {
     const { id } = req.params;
     const { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
+
+    // Formatear la MAC Address en minúsculas
+    const formattedMacAddress = formatMacAddress(mac_address).toLowerCase();
+
     try {
         const result = await pool.query(
             'UPDATE sensores SET nombre_sensor = ?, mac_address = ?, instrumento = ?, marca = ?, modelo = ?, serie = ?, resolucion = ?, intervalo_indicacion = ?, emp = ?, temp_inicial = ?, temp_final = ?, humedad_relativa_inicial = ?, humedad_relativa_final = ?, presion_atmosferica = ?, numero_informe = ? WHERE id = ?', 
-            [nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id]
+            [nombre_sensor, formattedMacAddress, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id]
         );
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Sensor no encontrado' });
