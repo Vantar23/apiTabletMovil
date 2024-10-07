@@ -24,7 +24,7 @@ router.get('/sensores/macaddresses', async (req, res) => {
         }
 
         // Extraer las MAC Addresses, envolverlas en comillas dobles y unirlas con comas
-        const macAddresses = rows.map(row => `"${row.mac_address}"`).join(',');
+        const macAddresses = rows.map(row => `${row.mac_address}`).join(', ');
 
         // Devolver la cadena con las MAC Addresses
         res.send(macAddresses);
