@@ -38,6 +38,9 @@ router.get('/sensores/macaddresses', async (req, res) => {
 // Obtener un sensor específico por ID
 router.get('/sensores/:id', async (req, res) => {
     const { id } = req.params;
+    if (isNaN(id)) {
+        return res.status(400).json({ message: 'ID no válido' });
+    }
     try {
         const [rows] = await pool.query('SELECT * FROM sensores WHERE id = ?', [id]);
         if (rows.length === 0) {
@@ -54,6 +57,20 @@ router.get('/sensores/:id', async (req, res) => {
 router.post('/sensores', async (req, res) => {
     let { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso } = req.body;
     
+    // Validaciones para campos faltantes
+    if (!nombre_sensor) {
+        return res.status(400).json({ message: 'Favor de llenar el campo nombre_sensor' });
+    }
+    if (!mac_address) {
+        return res.status(400).json({ message: 'Favor de llenar el campo mac_address' });
+    }
+    if (!instrumento) {
+        return res.status(400).json({ message: 'Favor de llenar el campo instrumento' });
+    }
+    if (!id_proceso) {
+        return res.status(400).json({ message: 'Favor de llenar el campo id_proceso' });
+    }
+
     // Formatear la MAC Address en minúsculas
     mac_address = formatMacAddress(mac_address).toLowerCase();
     
@@ -80,6 +97,17 @@ router.put('/sensores/:id', async (req, res) => {
     const { id } = req.params;
     const { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
 
+    // Validaciones para campos faltantes
+    if (!nombre_sensor) {
+        return res.status(400).json({ message: 'Favor de llenar el campo nombre_sensor' });
+    }
+    if (!mac_address) {
+        return res.status(400).json({ message: 'Favor de llenar el campo mac_address' });
+    }
+    if (!instrumento) {
+        return res.status(400).json({ message: 'Favor de llenar el campo instrumento' });
+    }
+
     // Formatear la MAC Address en minúsculas
     const formattedMacAddress = formatMacAddress(mac_address).toLowerCase();
 
@@ -101,6 +129,9 @@ router.put('/sensores/:id', async (req, res) => {
 // Eliminar un sensor por ID
 router.delete('/sensores/:id', async (req, res) => {
     const { id } = req.params;
+    if (isNaN(id)) {
+        return res.status(400).json({ message: 'ID no válido' });
+    }
     try {
         const result = await pool.query('DELETE FROM sensores WHERE id = ?', [id]);
         if (result.affectedRows === 0) {
