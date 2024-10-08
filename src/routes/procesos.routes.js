@@ -3,6 +3,13 @@ import { pool } from '../db.js';  // Asegúrate de que la conexión a la base de
 
 const router = Router();
 
+// Función para quitar los "/" de las fechas y formatearlas
+const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const [day, month, year] = dateString.split('/');
+    return `${day} ${month} ${year}`;  // Formato: "dd mm yyyy"
+};
+
 // Obtener todos los procesos
 router.get('/processes', async (req, res) => {
     try {
@@ -10,8 +17,16 @@ router.get('/processes', async (req, res) => {
         if (rows.length === 0) {
             return res.status(204).json({ message: 'No hay procesos disponibles' });  // 204 No Content
         }
-        // Si hay más de un proceso, devolver todos
-        res.json(rows);
+        
+        // Formatear fechas
+        const procesos = rows.map(proceso => ({
+            ...proceso,
+            fecha_verificacion: formatDate(proceso.fecha_verificacion),
+            proxima_verificacion: formatDate(proceso.proxima_verificacion),
+            prox_calibracion_patron: formatDate(proceso.prox_calibracion_patron)
+        }));
+
+        res.json(procesos);
     } catch (error) {
         console.error('Error al obtener los procesos:', error);
         res.status(500).json({ message: 'Error al obtener los procesos' });
@@ -29,7 +44,16 @@ router.get('/processes/:id', async (req, res) => {
         if (rows.length === 0) {
             return res.status(404).json({ message: 'Proceso no encontrado' });
         }
-        res.json(rows[0]);  // Devolver solo el primer (y único) resultado
+
+        // Formatear fechas del proceso
+        const proceso = {
+            ...rows[0],
+            fecha_verificacion: formatDate(rows[0].fecha_verificacion),
+            proxima_verificacion: formatDate(rows[0].proxima_verificacion),
+            prox_calibracion_patron: formatDate(rows[0].prox_calibracion_patron)
+        };
+
+        res.json(proceso);
     } catch (error) {
         console.error('Error al obtener el proceso por ID:', error);
         res.status(500).json({ message: 'Error al obtener el proceso' });
