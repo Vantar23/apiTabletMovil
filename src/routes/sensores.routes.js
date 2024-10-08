@@ -3,9 +3,27 @@ import { pool } from '../db.js';  // Asegúrate de que la conexión a la base de
 
 const router = Router();
 
+// Función para decodificar la MAC address eliminando los ":" y convertir a mayúsculas
 const decodeMacAddress = (mac) => {
     return mac.replace(/:/g, '').toUpperCase();
 };
+
+// Ruta para verificar la cantidad de sensores
+router.get('/cantidad-sensores', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT COUNT(*) as cantidad FROM sensores');
+        const cantidad = rows[0].cantidad;
+
+        if (cantidad >= 12) {
+            return res.status(400).json({ message: 'Ya se ha alcanzado el límite de 12 sensores.' });
+        }
+
+        res.json({ cantidad });
+    } catch (error) {
+        console.error('Error al obtener la cantidad de sensores:', error);
+        res.status(500).json({ message: 'Error al obtener la cantidad de sensores' });
+    }
+});
 
 // Obtener todos los sensores
 router.get('/sensores', async (req, res) => {
@@ -67,7 +85,19 @@ router.get('/sensores/:id', async (req, res) => {
 // Crear un nuevo sensor
 router.post('/sensores', async (req, res) => {
     let { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
-    
+
+    // Validar si ya hay 12 sensores
+    try {
+        const [rows] = await pool.query('SELECT COUNT(*) as cantidad FROM sensores');
+        const cantidad = rows[0].cantidad;
+        if (cantidad >= 12) {
+            return res.status(400).json({ message: 'Ya se ha alcanzado el límite de 12 sensores.' });
+        }
+    } catch (error) {
+        console.error('Error al verificar la cantidad de sensores:', error);
+        return res.status(500).json({ message: 'Error al verificar la cantidad de sensores' });
+    }
+
     // Validaciones para campos faltantes (excepto id_proceso)
     if (!nombre_sensor) {
         return res.status(400).json({ message: 'Favor de llenar el campo nombre_sensor' });
