@@ -29,6 +29,9 @@ router.get('/processes/:proceso_id/subprocesses', async (req, res) => {
 // Obtener un subproceso por su ID único
 router.get('/subprocesses/:id', async (req, res) => {
     const { id } = req.params;
+    if (isNaN(id)) {
+        return res.status(400).json({ message: 'ID no válido' });
+    }
     try {
         const [rows] = await pool.query('SELECT * FROM subprocesos WHERE id = ?', [id]);
         if (rows.length === 0) {
@@ -45,10 +48,24 @@ router.get('/subprocesses/:id', async (req, res) => {
 router.post('/processes/:proceso_id/subprocesses', async (req, res) => {
     const { proceso_id } = req.params;
     const { nombre, descripcion, valor_referencia, incertidumbre_patron } = req.body;
-    
+
+    // Validaciones de campos requeridos
+    if (!nombre) {
+        return res.status(400).json({ message: 'Favor de llenar el campo nombre' });
+    }
+    if (!descripcion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo descripcion' });
+    }
+    if (!valor_referencia) {
+        return res.status(400).json({ message: 'Favor de llenar el campo valor_referencia' });
+    }
+    if (!incertidumbre_patron) {
+        return res.status(400).json({ message: 'Favor de llenar el campo incertidumbre_patron' });
+    }
+
     // Valor predeterminado de estatus es 0
     const estatus = 0;
-    
+
     try {
         const result = await pool.query(
             'INSERT INTO subprocesos (nombre, descripcion, proceso_id, valor_referencia, incertidumbre_patron, estatus) VALUES (?, ?, ?, ?, ?, ?)',
@@ -65,6 +82,24 @@ router.post('/processes/:proceso_id/subprocesses', async (req, res) => {
 router.put('/subprocesses/:id', async (req, res) => {
     const { id } = req.params;
     const { nombre, descripcion, valor_referencia, incertidumbre_patron, estatus } = req.body;
+
+    // Validaciones de campos requeridos
+    if (!nombre) {
+        return res.status(400).json({ message: 'Favor de llenar el campo nombre' });
+    }
+    if (!descripcion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo descripcion' });
+    }
+    if (!valor_referencia) {
+        return res.status(400).json({ message: 'Favor de llenar el campo valor_referencia' });
+    }
+    if (!incertidumbre_patron) {
+        return res.status(400).json({ message: 'Favor de llenar el campo incertidumbre_patron' });
+    }
+    if (estatus === undefined) {
+        return res.status(400).json({ message: 'Favor de llenar el campo estatus' });
+    }
+
     try {
         const result = await pool.query(
             'UPDATE subprocesos SET nombre = ?, descripcion = ?, valor_referencia = ?, incertidumbre_patron = ?, estatus = ? WHERE id = ?',
@@ -83,6 +118,9 @@ router.put('/subprocesses/:id', async (req, res) => {
 // Eliminar un subproceso por su ID
 router.delete('/subprocesses/:id', async (req, res) => {
     const { id } = req.params;
+    if (isNaN(id)) {
+        return res.status(400).json({ message: 'ID no válido' });
+    }
     try {
         const result = await pool.query('DELETE FROM subprocesos WHERE id = ?', [id]);
         if (result.affectedRows === 0) {
