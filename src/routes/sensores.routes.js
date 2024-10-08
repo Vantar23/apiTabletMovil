@@ -23,6 +23,7 @@ router.get('/cantidad-sensores', async (req, res) => {
         console.error('Error al obtener la cantidad de sensores:', error);
         res.status(500).json({ message: 'Error al obtener la cantidad de sensores' });
     }
+    return res.status(400).json({ message: 'Ya se ha alcanzado el límite de 12 sensores.' });
 });
 
 // Obtener todos los sensores
