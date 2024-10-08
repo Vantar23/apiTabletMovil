@@ -44,15 +44,9 @@ router.get('/processes/:id', async (req, res) => {
 router.post('/processes', async (req, res) => {
     const { nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion } = req.body;
 
-    // Verificación de campos requeridos
-    if (!nombre) {
-        return res.status(400).json({ message: 'Favor de llenar el campo nombre' });
-    }
-    if (!descripcion) {
-        return res.status(400).json({ message: 'Favor de llenar el campo descripcion' });
-    }
-    if (!estandar) {
-        return res.status(400).json({ message: 'Favor de llenar el campo estandar' });
+    // Verificación de que todos los campos estén presentes
+    if (!nombre || !descripcion || !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !calibrado_patron || !prox_calibracion_patron || !fecha_verificacion || !proxima_verificacion) {
+        return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
     try {
@@ -73,15 +67,9 @@ router.put('/processes/:id', async (req, res) => {
     const { id } = req.params;
     const { nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion } = req.body;
 
-    // Verificación de campos requeridos
-    if (!nombre) {
-        return res.status(400).json({ message: 'Favor de llenar el campo nombre' });
-    }
-    if (!descripcion) {
-        return res.status(400).json({ message: 'Favor de llenar el campo descripcion' });
-    }
-    if (!estandar) {
-        return res.status(400).json({ message: 'Favor de llenar el campo estandar' });
+    // Verificación de que todos los campos estén presentes
+    if (!nombre || !descripcion || !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !calibrado_patron || !prox_calibracion_patron || !fecha_verificacion || !proxima_verificacion) {
+        return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
     try {
