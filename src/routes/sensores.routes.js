@@ -55,7 +55,7 @@ router.get('/sensores/:id', async (req, res) => {
 
 // Crear un nuevo sensor
 router.post('/sensores', async (req, res) => {
-    let { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso } = req.body;
+    let { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
     
     // Validaciones para campos faltantes
     if (!nombre_sensor) {
@@ -67,14 +67,22 @@ router.post('/sensores', async (req, res) => {
     if (!instrumento) {
         return res.status(400).json({ message: 'Favor de llenar el campo instrumento' });
     }
-    if (!id_proceso) {
-        return res.status(400).json({ message: 'Favor de llenar el campo id_proceso' });
-    }
 
-    // Formatear la MAC Address en minúsculas
-    mac_address = formatMacAddress(mac_address).toLowerCase();
-    
     try {
+        // Buscar el único proceso existente
+        const [procesos] = await pool.query('SELECT id FROM procesos');
+        if (procesos.length === 0) {
+            return res.status(404).json({ message: 'No hay procesos disponibles para asignar al sensor' });
+        }
+        if (procesos.length > 1) {
+            return res.status(400).json({ message: 'Se encontraron múltiples procesos, debe haber solo uno' });
+        }
+
+        const id_proceso = procesos[0].id;  // Se asume que solo hay un proceso
+
+        // Formatear la MAC Address en minúsculas
+        mac_address = formatMacAddress(mac_address).toLowerCase();
+
         const result = await pool.query(
             `INSERT INTO sensores (nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
@@ -108,13 +116,24 @@ router.put('/sensores/:id', async (req, res) => {
         return res.status(400).json({ message: 'Favor de llenar el campo instrumento' });
     }
 
-    // Formatear la MAC Address en minúsculas
-    const formattedMacAddress = formatMacAddress(mac_address).toLowerCase();
-
     try {
+        // Buscar el único proceso existente
+        const [procesos] = await pool.query('SELECT id FROM procesos');
+        if (procesos.length === 0) {
+            return res.status(404).json({ message: 'No hay procesos disponibles para asignar al sensor' });
+        }
+        if (procesos.length > 1) {
+            return res.status(400).json({ message: 'Se encontraron múltiples procesos, debe haber solo uno' });
+        }
+
+        const id_proceso = procesos[0].id;  // Se asume que solo hay un proceso
+
+        // Formatear la MAC Address en minúsculas
+        const formattedMacAddress = formatMacAddress(mac_address).toLowerCase();
+
         const result = await pool.query(
-            'UPDATE sensores SET nombre_sensor = ?, mac_address = ?, instrumento = ?, marca = ?, modelo = ?, serie = ?, resolucion = ?, intervalo_indicacion = ?, emp = ?, temp_inicial = ?, temp_final = ?, humedad_relativa_inicial = ?, humedad_relativa_final = ?, presion_atmosferica = ?, numero_informe = ? WHERE id = ?', 
-            [nombre_sensor, formattedMacAddress, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id]
+            'UPDATE sensores SET nombre_sensor = ?, mac_address = ?, instrumento = ?, marca = ?, modelo = ?, serie = ?, resolucion = ?, intervalo_indicacion = ?, emp = ?, temp_inicial = ?, temp_final = ?, humedad_relativa_inicial = ?, humedad_relativa_final = ?, presion_atmosferica = ?, numero_informe = ?, id_proceso = ? WHERE id = ?', 
+            [nombre_sensor, formattedMacAddress, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso, id]
         );
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Sensor no encontrado' });
