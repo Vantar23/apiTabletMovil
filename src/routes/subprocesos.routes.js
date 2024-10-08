@@ -3,46 +3,10 @@ import { pool } from '../db.js';
 
 const router = Router();
 
-// Obtener todos los subprocesos sin filtrar por proceso
-router.get('/subprocesses', async (req, res) => {
-    try {
-        const [rows] = await pool.query('SELECT * FROM subprocesos');
-        res.json(rows);
-    } catch (error) {
-        console.error('Error al obtener todos los subprocesos:', error);
-        res.status(500).json({ message: 'Error al obtener los subprocesos' });
-    }
-});
-
-// Obtener todos los subprocesos de un proceso específico
-router.get('/processes/:proceso_id/subprocesses', async (req, res) => {
-    const { proceso_id } = req.params;
-    try {
-        const [rows] = await pool.query('SELECT * FROM subprocesos WHERE proceso_id = ?', [proceso_id]);
-        res.json(rows);
-    } catch (error) {
-        console.error('Error al obtener los subprocesos:', error);
-        res.status(500).json({ message: 'Error al obtener los subprocesos' });
-    }
-});
-
-// Obtener un subproceso por su ID único
-router.get('/subprocesses/:id', async (req, res) => {
-    const { id } = req.params;
-    if (isNaN(id)) {
-        return res.status(400).json({ message: 'ID no válido' });
-    }
-    try {
-        const [rows] = await pool.query('SELECT * FROM subprocesos WHERE id = ?', [id]);
-        if (rows.length === 0) {
-            return res.status(404).json({ message: 'Subproceso no encontrado' });
-        }
-        res.json(rows[0]); // Devolver solo el primer resultado, ya que el id es único
-    } catch (error) {
-        console.error('Error al obtener el subproceso:', error);
-        res.status(500).json({ message: 'Error al obtener el subproceso' });
-    }
-});
+// Validación para verificar si el valor está dentro del rango
+const isInRange = (value, min, max) => {
+    return value >= min && value <= max;
+};
 
 // Crear un subproceso asociado a un proceso específico
 router.post('/processes/:proceso_id/subprocesses', async (req, res) => {
@@ -61,6 +25,16 @@ router.post('/processes/:proceso_id/subprocesses', async (req, res) => {
     }
     if (!incertidumbre_patron) {
         return res.status(400).json({ message: 'Favor de llenar el campo incertidumbre_patron' });
+    }
+
+    // Validar que incertidumbre_patron esté en el rango permitido (ajusta los valores de min y max según tu base de datos)
+    const incertidumbreMin = 0;  // Mínimo permitido (ajústalo según sea necesario)
+    const incertidumbreMax = 9999;  // Máximo permitido (ajústalo según sea necesario)
+    
+    if (!isInRange(incertidumbre_patron, incertidumbreMin, incertidumbreMax)) {
+        return res.status(400).json({ 
+            message: `El campo incertidumbre_patron debe estar entre ${incertidumbreMin} y ${incertidumbreMax}` 
+        });
     }
 
     // Si no se proporciona estatus, asignar el valor 0
@@ -97,6 +71,13 @@ router.put('/subprocesses/:id', async (req, res) => {
         return res.status(400).json({ message: 'Favor de llenar el campo incertidumbre_patron' });
     }
 
+    // Validar que incertidumbre_patron esté en el rango permitido
+    if (!isInRange(incertidumbre_patron, incertidumbreMin, incertidumbreMax)) {
+        return res.status(400).json({ 
+            message: `El campo incertidumbre_patron debe estar entre ${incertidumbreMin} y ${incertidumbreMax}` 
+        });
+    }
+
     try {
         // Si no se pasa el estatus en la petición, se conserva el estatus actual del subproceso
         let currentEstatus;
@@ -123,24 +104,6 @@ router.put('/subprocesses/:id', async (req, res) => {
     } catch (error) {
         console.error('Error al actualizar el subproceso:', error);
         res.status(500).json({ message: 'Error al actualizar el subproceso' });
-    }
-});
-
-// Eliminar un subproceso por su ID
-router.delete('/subprocesses/:id', async (req, res) => {
-    const { id } = req.params;
-    if (isNaN(id)) {
-        return res.status(400).json({ message: 'ID no válido' });
-    }
-    try {
-        const result = await pool.query('DELETE FROM subprocesos WHERE id = ?', [id]);
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Subproceso no encontrado' });
-        }
-        res.json({ message: 'Subproceso eliminado con éxito' });
-    } catch (error) {
-        console.error('Error al eliminar el subproceso:', error);
-        res.status(500).json({ message: 'Error al eliminar el subproceso' });
     }
 });
 
