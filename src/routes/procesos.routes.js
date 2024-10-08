@@ -52,8 +52,7 @@ router.get('/processes/:id', async (req, res) => {
         const proceso = {
             ...rows[0],
             fecha_verificacion: formatDate(rows[0].fecha_verificacion),
-            proxima_verificacion: formatDate(rows[0].proxima_verificacion),
-            prox_calibracion_patron: formatDate(rows[0].prox_calibracion_patron)
+            proxima_verificacion: formatDate(rows[0].proxima_verificacion)
         };
 
         res.json(proceso);
