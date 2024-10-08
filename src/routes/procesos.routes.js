@@ -25,6 +25,10 @@ router.get('/processes', async (req, res) => {
             proxima_verificacion: formatDate(proceso.proxima_verificacion)
         }));
 
+        if (procesos.length === 1) {
+            return res.json(procesos[0]);  // Devolver el único objeto sin corchetes []
+        }
+
         res.json(procesos);
     } catch (error) {
         console.error('Error al obtener los procesos:', error);
