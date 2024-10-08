@@ -10,10 +10,6 @@ router.get('/processes', async (req, res) => {
         if (rows.length === 0) {
             return res.status(204).json({ message: 'No hay procesos disponibles' });  // 204 No Content
         }
-        // Si quieres devolver solo el primer objeto en caso de que sea un solo proceso
-        if (rows.length === 1) {
-            return res.json(rows[0]);  // Devuelve el único objeto sin []
-        }
         // Si hay más de un proceso, devolver todos
         res.json(rows);
     } catch (error) {
@@ -44,9 +40,42 @@ router.get('/processes/:id', async (req, res) => {
 router.post('/processes', async (req, res) => {
     const { nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion } = req.body;
 
-    // Verificación de que todos los campos estén presentes
-    if (!nombre || !descripcion || !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !calibrado_patron || !prox_calibracion_patron || !fecha_verificacion || !proxima_verificacion) {
-        return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+    // Verificación de campos faltantes
+    if (!nombre) {
+        return res.status(400).json({ message: 'Favor de llenar el campo nombre' });
+    }
+    if (!descripcion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo descripcion' });
+    }
+    if (!estandar) {
+        return res.status(400).json({ message: 'Favor de llenar el campo estandar' });
+    }
+    if (!marca) {
+        return res.status(400).json({ message: 'Favor de llenar el campo marca' });
+    }
+    if (!modelo) {
+        return res.status(400).json({ message: 'Favor de llenar el campo modelo' });
+    }
+    if (!serie) {
+        return res.status(400).json({ message: 'Favor de llenar el campo serie' });
+    }
+    if (!resolucion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo resolucion' });
+    }
+    if (!intervalo_indicacion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo intervalo_indicacion' });
+    }
+    if (!calibrado_patron) {
+        return res.status(400).json({ message: 'Favor de llenar el campo calibrado_patron' });
+    }
+    if (!prox_calibracion_patron) {
+        return res.status(400).json({ message: 'Favor de llenar el campo prox_calibracion_patron' });
+    }
+    if (!fecha_verificacion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo fecha_verificacion' });
+    }
+    if (!proxima_verificacion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo proxima_verificacion' });
     }
 
     try {
@@ -67,9 +96,42 @@ router.put('/processes/:id', async (req, res) => {
     const { id } = req.params;
     const { nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion } = req.body;
 
-    // Verificación de que todos los campos estén presentes
-    if (!nombre || !descripcion || !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !calibrado_patron || !prox_calibracion_patron || !fecha_verificacion || !proxima_verificacion) {
-        return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+    // Verificación de campos faltantes
+    if (!nombre) {
+        return res.status(400).json({ message: 'Favor de llenar el campo nombre' });
+    }
+    if (!descripcion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo descripcion' });
+    }
+    if (!estandar) {
+        return res.status(400).json({ message: 'Favor de llenar el campo estandar' });
+    }
+    if (!marca) {
+        return res.status(400).json({ message: 'Favor de llenar el campo marca' });
+    }
+    if (!modelo) {
+        return res.status(400).json({ message: 'Favor de llenar el campo modelo' });
+    }
+    if (!serie) {
+        return res.status(400).json({ message: 'Favor de llenar el campo serie' });
+    }
+    if (!resolucion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo resolucion' });
+    }
+    if (!intervalo_indicacion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo intervalo_indicacion' });
+    }
+    if (!calibrado_patron) {
+        return res.status(400).json({ message: 'Favor de llenar el campo calibrado_patron' });
+    }
+    if (!prox_calibracion_patron) {
+        return res.status(400).json({ message: 'Favor de llenar el campo prox_calibracion_patron' });
+    }
+    if (!fecha_verificacion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo fecha_verificacion' });
+    }
+    if (!proxima_verificacion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo proxima_verificacion' });
     }
 
     try {
