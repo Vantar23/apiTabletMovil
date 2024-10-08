@@ -3,10 +3,9 @@ import { pool } from '../db.js';
 
 const router = Router();
 
-// Validación para verificar si el valor está dentro del rango
-const isInRange = (value, min, max) => {
-    return value >= min && value <= max;
-};
+// Funciones para validar el formato numérico con decimales
+const isTwoDecimalNumber = (value) => /^-?\d+(\.\d{1,2})?$/.test(value);  // Acepta hasta 2 decimales
+const isFourDecimalNumber = (value) => /^-?\d+(\.\d{1,4})?$/.test(value);  // Acepta hasta 4 decimales
 
 // Crear un subproceso asociado a un proceso específico
 router.post('/processes/:proceso_id/subprocesses', async (req, res) => {
@@ -27,14 +26,14 @@ router.post('/processes/:proceso_id/subprocesses', async (req, res) => {
         return res.status(400).json({ message: 'Favor de llenar el campo incertidumbre_patron' });
     }
 
-    // Validar que incertidumbre_patron esté en el rango permitido (ajusta los valores de min y max según tu base de datos)
-    const incertidumbreMin = 0;  // Mínimo permitido (ajústalo según sea necesario)
-    const incertidumbreMax = 9999;  // Máximo permitido (ajústalo según sea necesario)
-    
-    if (!isInRange(incertidumbre_patron, incertidumbreMin, incertidumbreMax)) {
-        return res.status(400).json({ 
-            message: `El campo incertidumbre_patron debe estar entre ${incertidumbreMin} y ${incertidumbreMax}` 
-        });
+    // Validar que valor_referencia sea un número con 2 decimales
+    if (!isTwoDecimalNumber(valor_referencia)) {
+        return res.status(400).json({ message: 'El valor de referencia debe ser un número con hasta 2 decimales' });
+    }
+
+    // Validar que incertidumbre_patron sea un número con 4 decimales
+    if (!isFourDecimalNumber(incertidumbre_patron)) {
+        return res.status(400).json({ message: 'La incertidumbre del patrón debe ser un número con hasta 4 decimales' });
     }
 
     // Si no se proporciona estatus, asignar el valor 0
@@ -71,11 +70,14 @@ router.put('/subprocesses/:id', async (req, res) => {
         return res.status(400).json({ message: 'Favor de llenar el campo incertidumbre_patron' });
     }
 
-    // Validar que incertidumbre_patron esté en el rango permitido
-    if (!isInRange(incertidumbre_patron, incertidumbreMin, incertidumbreMax)) {
-        return res.status(400).json({ 
-            message: `El campo incertidumbre_patron debe estar entre ${incertidumbreMin} y ${incertidumbreMax}` 
-        });
+    // Validar que valor_referencia sea un número con 2 decimales
+    if (!isTwoDecimalNumber(valor_referencia)) {
+        return res.status(400).json({ message: 'El valor de referencia debe ser un número con hasta 2 decimales' });
+    }
+
+    // Validar que incertidumbre_patron sea un número con 4 decimales
+    if (!isFourDecimalNumber(incertidumbre_patron)) {
+        return res.status(400).json({ message: 'La incertidumbre del patrón debe ser un número con hasta 4 decimales' });
     }
 
     try {
