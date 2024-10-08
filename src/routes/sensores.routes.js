@@ -57,7 +57,7 @@ router.get('/sensores/:id', async (req, res) => {
 router.post('/sensores', async (req, res) => {
     let { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
     
-    // Validaciones para campos faltantes
+    // Validaciones para campos faltantes (excepto id_proceso)
     if (!nombre_sensor) {
         return res.status(400).json({ message: 'Favor de llenar el campo nombre_sensor' });
     }
@@ -67,18 +67,50 @@ router.post('/sensores', async (req, res) => {
     if (!instrumento) {
         return res.status(400).json({ message: 'Favor de llenar el campo instrumento' });
     }
+    if (!marca) {
+        return res.status(400).json({ message: 'Favor de llenar el campo marca' });
+    }
+    if (!modelo) {
+        return res.status(400).json({ message: 'Favor de llenar el campo modelo' });
+    }
+    if (!serie) {
+        return res.status(400).json({ message: 'Favor de llenar el campo serie' });
+    }
+    if (!resolucion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo resolucion' });
+    }
+    if (!intervalo_indicacion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo intervalo_indicacion' });
+    }
+    if (!emp) {
+        return res.status(400).json({ message: 'Favor de llenar el campo emp' });
+    }
+    if (!temp_inicial) {
+        return res.status(400).json({ message: 'Favor de llenar el campo temp_inicial' });
+    }
+    if (!temp_final) {
+        return res.status(400).json({ message: 'Favor de llenar el campo temp_final' });
+    }
+    if (!humedad_relativa_inicial) {
+        return res.status(400).json({ message: 'Favor de llenar el campo humedad_relativa_inicial' });
+    }
+    if (!humedad_relativa_final) {
+        return res.status(400).json({ message: 'Favor de llenar el campo humedad_relativa_final' });
+    }
+    if (!presion_atmosferica) {
+        return res.status(400).json({ message: 'Favor de llenar el campo presion_atmosferica' });
+    }
+    if (!numero_informe) {
+        return res.status(400).json({ message: 'Favor de llenar el campo numero_informe' });
+    }
 
     try {
         // Buscar el único proceso existente
+        let id_proceso = null;
         const [procesos] = await pool.query('SELECT id FROM procesos');
-        if (procesos.length === 0) {
-            return res.status(404).json({ message: 'No hay procesos disponibles para asignar al sensor' });
+        if (procesos.length === 1) {
+            id_proceso = procesos[0].id;  // Asignar el único proceso si existe
         }
-        if (procesos.length > 1) {
-            return res.status(400).json({ message: 'Se encontraron múltiples procesos, debe haber solo uno' });
-        }
-
-        const id_proceso = procesos[0].id;  // Se asume que solo hay un proceso
 
         // Formatear la MAC Address en minúsculas
         mac_address = formatMacAddress(mac_address).toLowerCase();
@@ -105,7 +137,7 @@ router.put('/sensores/:id', async (req, res) => {
     const { id } = req.params;
     const { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
 
-    // Validaciones para campos faltantes
+    // Validaciones para campos faltantes (excepto id_proceso)
     if (!nombre_sensor) {
         return res.status(400).json({ message: 'Favor de llenar el campo nombre_sensor' });
     }
@@ -115,18 +147,50 @@ router.put('/sensores/:id', async (req, res) => {
     if (!instrumento) {
         return res.status(400).json({ message: 'Favor de llenar el campo instrumento' });
     }
+    if (!marca) {
+        return res.status(400).json({ message: 'Favor de llenar el campo marca' });
+    }
+    if (!modelo) {
+        return res.status(400).json({ message: 'Favor de llenar el campo modelo' });
+    }
+    if (!serie) {
+        return res.status(400).json({ message: 'Favor de llenar el campo serie' });
+    }
+    if (!resolucion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo resolucion' });
+    }
+    if (!intervalo_indicacion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo intervalo_indicacion' });
+    }
+    if (!emp) {
+        return res.status(400).json({ message: 'Favor de llenar el campo emp' });
+    }
+    if (!temp_inicial) {
+        return res.status(400).json({ message: 'Favor de llenar el campo temp_inicial' });
+    }
+    if (!temp_final) {
+        return res.status(400).json({ message: 'Favor de llenar el campo temp_final' });
+    }
+    if (!humedad_relativa_inicial) {
+        return res.status(400).json({ message: 'Favor de llenar el campo humedad_relativa_inicial' });
+    }
+    if (!humedad_relativa_final) {
+        return res.status(400).json({ message: 'Favor de llenar el campo humedad_relativa_final' });
+    }
+    if (!presion_atmosferica) {
+        return res.status(400).json({ message: 'Favor de llenar el campo presion_atmosferica' });
+    }
+    if (!numero_informe) {
+        return res.status(400).json({ message: 'Favor de llenar el campo numero_informe' });
+    }
 
     try {
         // Buscar el único proceso existente
+        let id_proceso = null;
         const [procesos] = await pool.query('SELECT id FROM procesos');
-        if (procesos.length === 0) {
-            return res.status(404).json({ message: 'No hay procesos disponibles para asignar al sensor' });
+        if (procesos.length === 1) {
+            id_proceso = procesos[0].id;  // Asignar el único proceso si existe
         }
-        if (procesos.length > 1) {
-            return res.status(400).json({ message: 'Se encontraron múltiples procesos, debe haber solo uno' });
-        }
-
-        const id_proceso = procesos[0].id;  // Se asume que solo hay un proceso
 
         // Formatear la MAC Address en minúsculas
         const formattedMacAddress = formatMacAddress(mac_address).toLowerCase();
