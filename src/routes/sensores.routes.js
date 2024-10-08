@@ -3,6 +3,10 @@ import { pool } from '../db.js';  // Asegúrate de que la conexión a la base de
 
 const router = Router();
 
+const decodeMacAddress = (mac) => {
+    return mac.replace(/:/g, '').toUpperCase();
+};
+
 // Obtener todos los sensores
 router.get('/sensores', async (req, res) => {
     try {
