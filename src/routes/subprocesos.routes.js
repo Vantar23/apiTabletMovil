@@ -47,7 +47,7 @@ router.get('/subprocesses/:id', async (req, res) => {
 // Crear un subproceso asociado a un proceso específico
 router.post('/processes/:proceso_id/subprocesses', async (req, res) => {
     const { proceso_id } = req.params;
-    const { nombre, descripcion, valor_referencia, incertidumbre_patron } = req.body;
+    const { nombre, descripcion, valor_referencia, incertidumbre_patron, estatus } = req.body;
 
     // Validaciones de campos requeridos
     if (!nombre) {
@@ -63,13 +63,13 @@ router.post('/processes/:proceso_id/subprocesses', async (req, res) => {
         return res.status(400).json({ message: 'Favor de llenar el campo incertidumbre_patron' });
     }
 
-    // Valor predeterminado de estatus es 0
-    const estatus = 0;
+    // Si no se proporciona estatus, asignar el valor 0
+    const estatusFinal = estatus !== undefined ? estatus : 0;
 
     try {
         const result = await pool.query(
             'INSERT INTO subprocesos (nombre, descripcion, proceso_id, valor_referencia, incertidumbre_patron, estatus) VALUES (?, ?, ?, ?, ?, ?)',
-            [nombre, descripcion, proceso_id, valor_referencia, incertidumbre_patron, estatus]
+            [nombre, descripcion, proceso_id, valor_referencia, incertidumbre_patron, estatusFinal]
         );
         res.json({ id: result.insertId, message: 'Subproceso creado con éxito' });
     } catch (error) {
@@ -96,14 +96,25 @@ router.put('/subprocesses/:id', async (req, res) => {
     if (!incertidumbre_patron) {
         return res.status(400).json({ message: 'Favor de llenar el campo incertidumbre_patron' });
     }
-    if (estatus === undefined) {
-        return res.status(400).json({ message: 'Favor de llenar el campo estatus' });
-    }
 
     try {
+        // Si no se pasa el estatus en la petición, se conserva el estatus actual del subproceso
+        let currentEstatus;
+        if (estatus === undefined) {
+            // Obtener el estatus actual del subproceso
+            const [rows] = await pool.query('SELECT estatus FROM subprocesos WHERE id = ?', [id]);
+            if (rows.length === 0) {
+                return res.status(404).json({ message: 'Subproceso no encontrado' });
+            }
+            currentEstatus = rows[0].estatus;
+        } else {
+            currentEstatus = estatus;
+        }
+
+        // Actualizar el subproceso
         const result = await pool.query(
             'UPDATE subprocesos SET nombre = ?, descripcion = ?, valor_referencia = ?, incertidumbre_patron = ?, estatus = ? WHERE id = ?',
-            [nombre, descripcion, valor_referencia, incertidumbre_patron, estatus, id]
+            [nombre, descripcion, valor_referencia, incertidumbre_patron, currentEstatus, id]
         );
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Subproceso no encontrado' });
