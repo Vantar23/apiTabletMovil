@@ -3,6 +3,11 @@ import { pool } from '../db.js';
 
 const router = Router();
 
+// Función para validar si un valor es decimal con hasta 4 decimales
+const isDecimal = (value) => {
+    return /^-?\d+(\.\d{1,4})?$/.test(value);
+};
+
 // Obtener todos los subprocesos sin filtrar por proceso
 router.get('/subprocesses', async (req, res) => {
     try {
@@ -59,8 +64,8 @@ router.post('/processes/:proceso_id/subprocesses', async (req, res) => {
     if (!valor_referencia) {
         return res.status(400).json({ message: 'Favor de llenar el campo valor_referencia' });
     }
-    if (!incertidumbre_patron) {
-        return res.status(400).json({ message: 'Favor de llenar el campo incertidumbre_patron' });
+    if (!incertidumbre_patron || !isDecimal(incertidumbre_patron)) {
+        return res.status(400).json({ message: 'El valor de incertidumbre_patron no es válido, debe ser un número decimal con hasta 4 decimales' });
     }
 
     // Si no se proporciona estatus, asignar el valor 0
@@ -93,8 +98,8 @@ router.put('/subprocesses/:id', async (req, res) => {
     if (!valor_referencia) {
         return res.status(400).json({ message: 'Favor de llenar el campo valor_referencia' });
     }
-    if (!incertidumbre_patron) {
-        return res.status(400).json({ message: 'Favor de llenar el campo incertidumbre_patron' });
+    if (!incertidumbre_patron || !isDecimal(incertidumbre_patron)) {
+        return res.status(400).json({ message: 'El valor de incertidumbre_patron no es válido, debe ser un número decimal con hasta 4 decimales' });
     }
 
     try {
