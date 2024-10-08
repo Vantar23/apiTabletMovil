@@ -46,7 +46,14 @@ router.get('/sensores/:id', async (req, res) => {
         if (rows.length === 0) {
             return res.status(404).json({ message: 'Sensor no encontrado' });
         }
-        res.json(rows[0]);  // Devolver solo el primer (y único) resultado
+
+        // Decodificar la MAC address del sensor
+        const sensor = {
+            ...rows[0],
+            mac_address: decodeMacAddress(rows[0].mac_address)
+        };
+
+        res.json(sensor);
     } catch (error) {
         console.error('Error al obtener el sensor por ID:', error);
         res.status(500).json({ message: 'Error al obtener el sensor' });
