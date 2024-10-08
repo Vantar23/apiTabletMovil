@@ -22,10 +22,12 @@ router.get('/processes', async (req, res) => {
     }
 });
 
-
 // Obtener un proceso específico por ID
 router.get('/processes/:id', async (req, res) => {
     const { id } = req.params;
+    if (isNaN(id)) {
+        return res.status(400).json({ message: 'ID no válido' });
+    }
     try {
         const [rows] = await pool.query('SELECT * FROM procesos WHERE id = ?', [id]);
         if (rows.length === 0) {
@@ -41,6 +43,18 @@ router.get('/processes/:id', async (req, res) => {
 // Crear un nuevo proceso
 router.post('/processes', async (req, res) => {
     const { nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion } = req.body;
+
+    // Verificación de campos requeridos
+    if (!nombre) {
+        return res.status(400).json({ message: 'Favor de llenar el campo nombre' });
+    }
+    if (!descripcion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo descripcion' });
+    }
+    if (!estandar) {
+        return res.status(400).json({ message: 'Favor de llenar el campo estandar' });
+    }
+
     try {
         const [result] = await pool.query(
             'INSERT INTO procesos (nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
@@ -54,11 +68,22 @@ router.post('/processes', async (req, res) => {
     }
 });
 
-
 // Editar un proceso por ID
 router.put('/processes/:id', async (req, res) => {
     const { id } = req.params;
     const { nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion } = req.body;
+
+    // Verificación de campos requeridos
+    if (!nombre) {
+        return res.status(400).json({ message: 'Favor de llenar el campo nombre' });
+    }
+    if (!descripcion) {
+        return res.status(400).json({ message: 'Favor de llenar el campo descripcion' });
+    }
+    if (!estandar) {
+        return res.status(400).json({ message: 'Favor de llenar el campo estandar' });
+    }
+
     try {
         const result = await pool.query(
             'UPDATE procesos SET nombre = ?, descripcion = ?, estandar = ?, marca = ?, modelo = ?, serie = ?, resolucion = ?, intervalo_indicacion = ?, calibrado_patron = ?, prox_calibracion_patron = ?, fecha_verificacion = ?, proxima_verificacion = ? WHERE id = ?', 
@@ -77,6 +102,10 @@ router.put('/processes/:id', async (req, res) => {
 // Eliminar un proceso por ID, junto con los subprocesos y sensores relacionados
 router.delete('/processes/:id', async (req, res) => {
     const { id } = req.params;
+    if (isNaN(id)) {
+        return res.status(400).json({ message: 'ID no válido' });
+    }
+
     try {
         // Primero eliminar los sensores relacionados
         await pool.query('DELETE FROM sensores WHERE id_proceso = ?', [id]);
