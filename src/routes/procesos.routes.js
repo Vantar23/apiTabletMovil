@@ -22,8 +22,7 @@ router.get('/processes', async (req, res) => {
         const procesos = rows.map(proceso => ({
             ...proceso,
             fecha_verificacion: formatDate(proceso.fecha_verificacion),
-            proxima_verificacion: formatDate(proceso.proxima_verificacion),
-            prox_calibracion_patron: formatDate(proceso.prox_calibracion_patron)
+            proxima_verificacion: formatDate(proceso.proxima_verificacion)
         }));
 
         res.json(procesos);
