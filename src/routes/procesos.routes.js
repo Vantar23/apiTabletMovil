@@ -25,10 +25,6 @@ router.get('/processes', async (req, res) => {
             proxima_verificacion: formatDate(proceso.proxima_verificacion)
         }));
 
-        if (procesos.length === 1) {
-            return res.json(procesos[0]);  // Devolver el único objeto sin corchetes []
-        }
-
         res.json(procesos);
     } catch (error) {
         console.error('Error al obtener los procesos:', error);
@@ -64,52 +60,18 @@ router.get('/processes/:id', async (req, res) => {
 
 // Crear un nuevo proceso
 router.post('/processes', async (req, res) => {
-    const { nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion } = req.body;
+    const { nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
 
     // Verificación de campos faltantes
-    if (!nombre) {
-        return res.status(400).json({ message: 'Favor de llenar el campo nombre' });
-    }
-    if (!descripcion) {
-        return res.status(400).json({ message: 'Favor de llenar el campo descripcion' });
-    }
-    if (!estandar) {
-        return res.status(400).json({ message: 'Favor de llenar el campo estandar' });
-    }
-    if (!marca) {
-        return res.status(400).json({ message: 'Favor de llenar el campo marca' });
-    }
-    if (!modelo) {
-        return res.status(400).json({ message: 'Favor de llenar el campo modelo' });
-    }
-    if (!serie) {
-        return res.status(400).json({ message: 'Favor de llenar el campo serie' });
-    }
-    if (!resolucion) {
-        return res.status(400).json({ message: 'Favor de llenar el campo resolucion' });
-    }
-    if (!intervalo_indicacion) {
-        return res.status(400).json({ message: 'Favor de llenar el campo intervalo_indicacion' });
-    }
-    if (!calibrado_patron) {
-        return res.status(400).json({ message: 'Favor de llenar el campo calibrado_patron' });
-    }
-    if (!prox_calibracion_patron) {
-        return res.status(400).json({ message: 'Favor de llenar el campo prox_calibracion_patron' });
-    }
-    if (!fecha_verificacion) {
-        return res.status(400).json({ message: 'Favor de llenar el campo fecha_verificacion' });
-    }
-    if (!proxima_verificacion) {
-        return res.status(400).json({ message: 'Favor de llenar el campo proxima_verificacion' });
+    if (!nombre || !descripcion || !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !calibrado_patron || !prox_calibracion_patron || !fecha_verificacion || !proxima_verificacion) {
+        return res.status(400).json({ message: 'Favor de llenar todos los campos obligatorios' });
     }
 
     try {
         const [result] = await pool.query(
-            'INSERT INTO procesos (nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-            [nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion]
+            'INSERT INTO procesos (nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+            [nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe]
         );
-        // Devuelve el ID y el nombre del proceso creado
         res.json({ id: result.insertId, nombre: nombre });
     } catch (error) {
         console.error('Error al crear proceso:', error);
@@ -120,50 +82,17 @@ router.post('/processes', async (req, res) => {
 // Editar un proceso por ID
 router.put('/processes/:id', async (req, res) => {
     const { id } = req.params;
-    const { nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion } = req.body;
+    const { nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
 
     // Verificación de campos faltantes
-    if (!nombre) {
-        return res.status(400).json({ message: 'Favor de llenar el campo nombre' });
-    }
-    if (!descripcion) {
-        return res.status(400).json({ message: 'Favor de llenar el campo descripcion' });
-    }
-    if (!estandar) {
-        return res.status(400).json({ message: 'Favor de llenar el campo estandar' });
-    }
-    if (!marca) {
-        return res.status(400).json({ message: 'Favor de llenar el campo marca' });
-    }
-    if (!modelo) {
-        return res.status(400).json({ message: 'Favor de llenar el campo modelo' });
-    }
-    if (!serie) {
-        return res.status(400).json({ message: 'Favor de llenar el campo serie' });
-    }
-    if (!resolucion) {
-        return res.status(400).json({ message: 'Favor de llenar el campo resolucion' });
-    }
-    if (!intervalo_indicacion) {
-        return res.status(400).json({ message: 'Favor de llenar el campo intervalo_indicacion' });
-    }
-    if (!calibrado_patron) {
-        return res.status(400).json({ message: 'Favor de llenar el campo calibrado_patron' });
-    }
-    if (!prox_calibracion_patron) {
-        return res.status(400).json({ message: 'Favor de llenar el campo prox_calibracion_patron' });
-    }
-    if (!fecha_verificacion) {
-        return res.status(400).json({ message: 'Favor de llenar el campo fecha_verificacion' });
-    }
-    if (!proxima_verificacion) {
-        return res.status(400).json({ message: 'Favor de llenar el campo proxima_verificacion' });
+    if (!nombre || !descripcion || !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !calibrado_patron || !prox_calibracion_patron || !fecha_verificacion || !proxima_verificacion) {
+        return res.status(400).json({ message: 'Favor de llenar todos los campos obligatorios' });
     }
 
     try {
         const result = await pool.query(
-            'UPDATE procesos SET nombre = ?, descripcion = ?, estandar = ?, marca = ?, modelo = ?, serie = ?, resolucion = ?, intervalo_indicacion = ?, calibrado_patron = ?, prox_calibracion_patron = ?, fecha_verificacion = ?, proxima_verificacion = ? WHERE id = ?', 
-            [nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion, id]
+            'UPDATE procesos SET nombre = ?, descripcion = ?, estandar = ?, marca = ?, modelo = ?, serie = ?, resolucion = ?, intervalo_indicacion = ?, calibrado_patron = ?, prox_calibracion_patron = ?, fecha_verificacion = ?, proxima_verificacion = ?, temp_inicial = ?, temp_final = ?, humedad_relativa_inicial = ?, humedad_relativa_final = ?, presion_atmosferica = ?, numero_informe = ? WHERE id = ?', 
+            [nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id]
         );
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Proceso no encontrado' });
