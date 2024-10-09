@@ -125,12 +125,12 @@ router.post('/sensores', async (req, res) => {
     }
 
     try {
-        // Buscar el único proceso existente
-        let id_proceso = null;
+        // Obtener el único id de la tabla procesos
         const [procesos] = await pool.query('SELECT id FROM procesos');
-        if (procesos.length === 1) {
-            id_proceso = procesos[0].id;  // Asignar el único proceso si existe
+        if (procesos.length !== 1) {
+            return res.status(500).json({ message: 'Error: Debe haber exactamente un proceso en la tabla procesos.' });
         }
+        const id_proceso = procesos[0].id;
 
         // Formatear la MAC Address en minúsculas
         mac_address = formatMacAddress(mac_address).toLowerCase();
