@@ -17,7 +17,7 @@ router.get('/processes', async (req, res) => {
         if (rows.length === 0) {
             return res.status(204).json({ message: 'No hay procesos disponibles' });  // 204 No Content
         }
-        
+
         // Formatear fechas
         const procesos = rows.map(proceso => ({
             ...proceso,
@@ -49,11 +49,13 @@ router.get('/processes/:id', async (req, res) => {
         // Formatear fechas del proceso
         const proceso = {
             ...rows[0],
+            calibrado_patron: formatDate(rows[0].calibrado_patron),
+            prox_calibracion_patron: formatDate(rows[0].prox_calibracion_patron),
             fecha_verificacion: formatDate(rows[0].fecha_verificacion),
             proxima_verificacion: formatDate(rows[0].proxima_verificacion)
         };
 
-        res.json(proceso);
+        res.json(proceso);  // Devuelve un objeto
     } catch (error) {
         console.error('Error al obtener el proceso por ID:', error);
         res.status(500).json({ message: 'Error al obtener el proceso' });
