@@ -84,7 +84,7 @@ router.get('/sensores/:id', async (req, res) => {
 
 // Crear un nuevo sensor
 router.post('/sensores', async (req, res) => {
-    let { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
+    let { nombre_sensor, mac_address, instrumento, marca, modelo, resolucion, intervalo_indicacion, emp } = req.body;
 
     // Validar si ya hay 12 sensores
     try {
@@ -98,7 +98,7 @@ router.post('/sensores', async (req, res) => {
         return res.status(500).json({ message: 'Error al verificar la cantidad de sensores' });
     }
 
-    // Validaciones para campos faltantes (excepto id_proceso)
+    // Validaciones para campos faltantes
     if (!nombre_sensor) {
         return res.status(400).json({ message: 'Favor de llenar el campo nombre_sensor' });
     }
@@ -114,9 +114,6 @@ router.post('/sensores', async (req, res) => {
     if (!modelo) {
         return res.status(400).json({ message: 'Favor de llenar el campo modelo' });
     }
-    if (!serie) {
-        return res.status(400).json({ message: 'Favor de llenar el campo serie' });
-    }
     if (!resolucion) {
         return res.status(400).json({ message: 'Favor de llenar el campo resolucion' });
     }
@@ -125,24 +122,6 @@ router.post('/sensores', async (req, res) => {
     }
     if (!emp) {
         return res.status(400).json({ message: 'Favor de llenar el campo emp' });
-    }
-    if (!temp_inicial) {
-        return res.status(400).json({ message: 'Favor de llenar el campo temp_inicial' });
-    }
-    if (!temp_final) {
-        return res.status(400).json({ message: 'Favor de llenar el campo temp_final' });
-    }
-    if (!humedad_relativa_inicial) {
-        return res.status(400).json({ message: 'Favor de llenar el campo humedad_relativa_inicial' });
-    }
-    if (!humedad_relativa_final) {
-        return res.status(400).json({ message: 'Favor de llenar el campo humedad_relativa_final' });
-    }
-    if (!presion_atmosferica) {
-        return res.status(400).json({ message: 'Favor de llenar el campo presion_atmosferica' });
-    }
-    if (!numero_informe) {
-        return res.status(400).json({ message: 'Favor de llenar el campo numero_informe' });
     }
 
     try {
@@ -157,9 +136,9 @@ router.post('/sensores', async (req, res) => {
         mac_address = formatMacAddress(mac_address).toLowerCase();
 
         const result = await pool.query(
-            `INSERT INTO sensores (nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
-            [nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso]
+            `INSERT INTO sensores (nombre_sensor, mac_address, instrumento, marca, modelo, resolucion, intervalo_indicacion, emp, id_proceso) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+            [nombre_sensor, mac_address, instrumento, marca, modelo, resolucion, intervalo_indicacion, emp, id_proceso]
         );
         res.json({ id: result.insertId, message: 'Sensor creado con éxito' });
     } catch (error) {
@@ -176,9 +155,9 @@ const formatMacAddress = (mac) => {
 // Editar un sensor por ID
 router.put('/sensores/:id', async (req, res) => {
     const { id } = req.params;
-    const { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
+    const { nombre_sensor, mac_address, instrumento, marca, modelo, resolucion, intervalo_indicacion, emp } = req.body;
 
-    // Validaciones para campos faltantes (excepto id_proceso)
+    // Validaciones para campos faltantes
     if (!nombre_sensor) {
         return res.status(400).json({ message: 'Favor de llenar el campo nombre_sensor' });
     }
@@ -194,9 +173,6 @@ router.put('/sensores/:id', async (req, res) => {
     if (!modelo) {
         return res.status(400).json({ message: 'Favor de llenar el campo modelo' });
     }
-    if (!serie) {
-        return res.status(400).json({ message: 'Favor de llenar el campo serie' });
-    }
     if (!resolucion) {
         return res.status(400).json({ message: 'Favor de llenar el campo resolucion' });
     }
@@ -205,24 +181,6 @@ router.put('/sensores/:id', async (req, res) => {
     }
     if (!emp) {
         return res.status(400).json({ message: 'Favor de llenar el campo emp' });
-    }
-    if (!temp_inicial) {
-        return res.status(400).json({ message: 'Favor de llenar el campo temp_inicial' });
-    }
-    if (!temp_final) {
-        return res.status(400).json({ message: 'Favor de llenar el campo temp_final' });
-    }
-    if (!humedad_relativa_inicial) {
-        return res.status(400).json({ message: 'Favor de llenar el campo humedad_relativa_inicial' });
-    }
-    if (!humedad_relativa_final) {
-        return res.status(400).json({ message: 'Favor de llenar el campo humedad_relativa_final' });
-    }
-    if (!presion_atmosferica) {
-        return res.status(400).json({ message: 'Favor de llenar el campo presion_atmosferica' });
-    }
-    if (!numero_informe) {
-        return res.status(400).json({ message: 'Favor de llenar el campo numero_informe' });
     }
 
     try {
@@ -237,8 +195,8 @@ router.put('/sensores/:id', async (req, res) => {
         const formattedMacAddress = formatMacAddress(mac_address).toLowerCase();
 
         const result = await pool.query(
-            'UPDATE sensores SET nombre_sensor = ?, mac_address = ?, instrumento = ?, marca = ?, modelo = ?, serie = ?, resolucion = ?, intervalo_indicacion = ?, emp = ?, temp_inicial = ?, temp_final = ?, humedad_relativa_inicial = ?, humedad_relativa_final = ?, presion_atmosferica = ?, numero_informe = ?, id_proceso = ? WHERE id = ?', 
-            [nombre_sensor, formattedMacAddress, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso, id]
+            'UPDATE sensores SET nombre_sensor = ?, mac_address = ?, instrumento = ?, marca = ?, modelo = ?, resolucion = ?, intervalo_indicacion = ?, emp = ?, id_proceso = ? WHERE id = ?', 
+            [nombre_sensor, formattedMacAddress, instrumento, marca, modelo, resolucion, intervalo_indicacion, emp, id_proceso, id]
         );
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Sensor no encontrado' });
