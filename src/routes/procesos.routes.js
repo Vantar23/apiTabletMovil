@@ -63,7 +63,7 @@ router.post('/processes', async (req, res) => {
     const { nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
 
     // Verificación de campos faltantes
-    if (!nombre || !descripcion || !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !calibrado_patron || !prox_calibracion_patron || !fecha_verificacion || !proxima_verificacion) {
+    if (!nombre || !descripcion || !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !calibrado_patron || !prox_calibracion_patron || !fecha_verificacion || !proxima_verificacion || !temp_inicial || !temp_final || !humedad_relativa_inicial || !humedad_relativa_final || !presion_atmosferica || !numero_informe) {
         return res.status(400).json({ message: 'Favor de llenar todos los campos obligatorios' });
     }
 
@@ -85,7 +85,7 @@ router.put('/processes/:id', async (req, res) => {
     const { nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
 
     // Verificación de campos faltantes
-    if (!nombre || !descripcion || !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !calibrado_patron || !prox_calibracion_patron || !fecha_verificacion || !proxima_verificacion) {
+    if (!nombre || !descripcion || !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !calibrado_patron || !prox_calibracion_patron || !fecha_verificacion || !proxima_verificacion || !temp_inicial || !temp_final || !humedad_relativa_inicial || !humedad_relativa_final || !presion_atmosferica || !numero_informe) {
         return res.status(400).json({ message: 'Favor de llenar todos los campos obligatorios' });
     }
 
