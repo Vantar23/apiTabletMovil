@@ -18,16 +18,16 @@ router.get('/processes', async (req, res) => {
             return res.status(204).json({ message: 'No hay procesos disponibles' });  // 204 No Content
         }
 
-        // Formatear fechas
-        const procesos = rows.map(proceso => ({
-            ...rows[0],
-            calibrado_patron: formatDate(proceso.calibrado_patron),
-            prox_calibracion_patron: formatDate(proceso.prox_calibracion_patron),
-            fecha_verificacion: formatDate(proceso.fecha_verificacion),
-            proxima_verificacion: formatDate(proceso.proxima_verificacion)
-        }));
+        // Seleccionar el primer proceso (en lugar de devolver un array)
+        const proceso = {
+            ...rows[0],  // Solo obtenemos el primer proceso
+            calibrado_patron: formatDate(rows[0].calibrado_patron),
+            prox_calibracion_patron: formatDate(rows[0].prox_calibracion_patron),
+            fecha_verificacion: formatDate(rows[0].fecha_verificacion),
+            proxima_verificacion: formatDate(rows[0].proxima_verificacion)
+        };
 
-        res.json(procesos);
+        res.json(proceso);  // Devuelve solo el primer proceso como un objeto
     } catch (error) {
         console.error('Error al obtener los procesos:', error);
         res.status(500).json({ message: 'Error al obtener los procesos' });
