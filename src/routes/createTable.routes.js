@@ -4,7 +4,7 @@ import { pool } from '../db.js';  // Asegúrate de que la conexión a la base de
 const router = Router();
 
 // Función para eliminar columnas de la tabla sensores
-router.put('/elimina-columnas', async (req, res) => {
+router.get('/elimina-columnas', async (req, res) => {
     try {
         // Consulta para eliminar las columnas especificadas
         const query = `
