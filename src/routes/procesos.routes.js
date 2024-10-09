@@ -21,6 +21,8 @@ router.get('/processes', async (req, res) => {
         // Formatear fechas
         const procesos = rows.map(proceso => ({
             ...proceso,
+            calibrado_patron: formatDate(proceso.calibrado_patron),
+            prox_calibracion_patron: formatDate(proceso.prox_calibracion_patron),
             fecha_verificacion: formatDate(proceso.fecha_verificacion),
             proxima_verificacion: formatDate(proceso.proxima_verificacion)
         }));
