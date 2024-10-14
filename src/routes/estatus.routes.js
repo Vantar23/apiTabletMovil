@@ -38,14 +38,16 @@ router.put('/estatus/:id', async (req, res) => {
             cadena += `!${sensor.id},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.serie || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},${sensor.temp_inicial || ''},${sensor.temp_final || ''},${sensor.humedad_relativa_inicial || ''},${sensor.humedad_relativa_final || ''},${sensor.presion_atmosferica || ''},${sensor.numero_informe || ''},`;
         });
 
-        // Hacer la solicitud GET a la URL con la cadena como parámetro
-        const url = `https://controlware.com.mx/recibe_avimex_tablet.asp?recibo=${encodeURIComponent(cadena)}`;
+        // Preparar la solicitud POST con la cadena en el cuerpo
+        const url = `https://controlware.com.mx/recibe_avimex_tablet.asp`;
 
         try {
-            const response = await axios.get(url);
+            const response = await axios.post(url, { recibo: cadena }, {
+                headers: { 'Content-Type': 'application/json' },
+            });
             console.log('Respuesta del servidor:', response.data);
         } catch (error) {
-            console.error('Error al hacer la solicitud GET:', error);
+            console.error('Error al hacer la solicitud POST:', error);
             return res.status(500).json({ message: 'Error al enviar la cadena', error: error.message });
         }
 
