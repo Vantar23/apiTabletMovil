@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { pool } from '../db.js';
+import axios from 'axios'; // Importamos axios
 
 const router = Router();
 
@@ -16,11 +17,7 @@ router.put('/estatus/:id', async (req, res) => {
 
         // Obtener todos los datos de procesos
         const [procesos] = await pool.query('SELECT * FROM procesos');
-
-        // Obtener todos los subprocesos
         const [subprocesos] = await pool.query('SELECT * FROM subprocesos');
-
-        // Obtener todos los sensores
         const [sensores] = await pool.query('SELECT * FROM sensores');
 
         // Construir la cadena de proceso, subprocesos y sensores
@@ -31,7 +28,7 @@ router.put('/estatus/:id', async (req, res) => {
             cadena += `${proceso.id},${proceso.nombre || ''},${proceso.descripcion || ''},${proceso.estandar || ''},${proceso.marca || ''},${proceso.modelo || ''},${proceso.serie || ''},${proceso.resolucion || ''},${proceso.intervalo_indicacion || ''},${proceso.calibrado_patron || ''},${proceso.prox_calibracion_patron || ''},${proceso.fecha_verificacion || ''},${proceso.proxima_verificacion || ''},`;
         });
 
-        // Agregar subprocesos a la cadena con $ al principio del id
+        // Agregar subprocesos a la cadena
         subprocesos.forEach(sub => {
             cadena += `$${sub.id},${sub.nombre || ''},${sub.descripcion || ''},${sub.valor_referencia || ''},${sub.incertidumbre_patron || ''},${sub.estatus || ''},`;
         });
@@ -41,8 +38,19 @@ router.put('/estatus/:id', async (req, res) => {
             cadena += `!${sensor.id},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.serie || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},${sensor.temp_inicial || ''},${sensor.temp_final || ''},${sensor.humedad_relativa_inicial || ''},${sensor.humedad_relativa_final || ''},${sensor.presion_atmosferica || ''},${sensor.numero_informe || ''},`;
         });
 
-        // Enviar la cadena construida
-        res.json({ message: 'Estatus actualizado con éxito', cadena });
+        // Hacer la solicitud GET a la URL con la cadena como parámetro
+        const url = `https://controlware.com.mx/recibe_avimex_tablet.asp?recibo=${encodeURIComponent(cadena)}`;
+
+        try {
+            const response = await axios.get(url);
+            console.log('Respuesta del servidor:', response.data);
+        } catch (error) {
+            console.error('Error al hacer la solicitud GET:', error);
+            return res.status(500).json({ message: 'Error al enviar la cadena', error: error.message });
+        }
+
+        // Responder con éxito
+        res.json({ message: 'Estatus actualizado con éxito y cadena enviada', cadena });
 
     } catch (error) {
         console.error('Error al actualizar el estatus del subproceso:', error);
