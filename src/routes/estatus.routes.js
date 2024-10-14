@@ -15,7 +15,7 @@ router.put('/estatus/:id', async (req, res) => {
             return res.status(404).json({ message: 'Subproceso no encontrado' });
         }
 
-        // Obtener todos los datos de procesos
+        // Obtener todos los datos de procesos, subprocesos y sensores
         const [procesos] = await pool.query('SELECT * FROM procesos');
         const [subprocesos] = await pool.query('SELECT * FROM subprocesos');
         const [sensores] = await pool.query('SELECT * FROM sensores');
@@ -38,12 +38,15 @@ router.put('/estatus/:id', async (req, res) => {
             cadena += `!${sensor.id},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.serie || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},${sensor.temp_inicial || ''},${sensor.temp_final || ''},${sensor.humedad_relativa_inicial || ''},${sensor.humedad_relativa_final || ''},${sensor.presion_atmosferica || ''},${sensor.numero_informe || ''},`;
         });
 
-        // Preparar la solicitud POST con la cadena en el cuerpo
-        const url = `https://controlware.com.mx/recibe_avimex_tablet.asp`;
+        // Construir la URL con el parámetro 'recibo'
+        const url = `https://controlware.com.mx/recibe_avimex_tablet.asp?recibo=${encodeURIComponent(cadena)}`;
 
         try {
-            const response = await axios.post(url, { recibo: cadena }, {
-                headers: { 'Content-Type': 'application/json' },
+            // Hacer la solicitud POST a la URL construida
+            const response = await axios.post(url, null, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
             });
             console.log('Respuesta del servidor:', response.data);
         } catch (error) {
