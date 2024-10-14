@@ -4,12 +4,15 @@ import { pool } from '../db.js';  // Asegúrate de que la conexión a la base de
 const router = Router();
 
 // Crear una cadena con los datos de las tablas procesos, subprocesos y sensores sin borrar nada
-// Crear y enviar la cadena con los datos de procesos, subprocesos y sensores
 router.get('/crea-cadena', async (req, res) => {
     try {
         // Obtener todos los datos de procesos
         const [procesos] = await pool.query('SELECT * FROM procesos');
+
+        // Obtener todos los subprocesos
         const [subprocesos] = await pool.query('SELECT * FROM subprocesos');
+
+        // Obtener todos los sensores
         const [sensores] = await pool.query('SELECT * FROM sensores');
 
         // Construir la cadena de envío
@@ -27,33 +30,17 @@ router.get('/crea-cadena', async (req, res) => {
 
         // Agregar sensores a la cadena
         sensores.forEach(sensor => {
-            cadena += `!${sensor.id},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.serie || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},${sensor.temp_inicial || ''},${sensor.temp_final || ''},${sensor.humedad_relativa_inicial || ''},${sensor.humedad_relativa_final || ''},${sensor.presion_atmosferica || ''},${sensor.numero_informe || ''},`;
+            cadena += `!${sensor.id},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
         });
 
-        // Construir la URL completa para la solicitud POST
-        const url = `https://controlware.com.mx/recibe_avimex_tablet.asp?recibo=${encodeURIComponent(cadena)}`;
+        // Enviar la cadena construida sin eliminar los registros
+        res.status(200).json({ cadena });
 
-        try {
-            // Realizar la solicitud POST
-            const response = await axios.post(url, null, {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-            });
-            console.log('Respuesta del servidor:', response.data);
-
-            // Enviar respuesta exitosa
-            res.status(200).json({ message: 'Cadena enviada con éxito', cadena });
-        } catch (error) {
-            console.error('Error al hacer la solicitud POST:', error);
-            return res.status(500).json({ message: 'Error al enviar la cadena', error: error.message });
-        }
     } catch (error) {
         console.error('Error al crear la cadena:', error);
         res.status(500).json({ message: 'Error al crear la cadena', error });
     }
 });
-
 
 // Limpiar las tablas procesos, subprocesos y sensores después de crear la cadena
 router.get('/clean-database', async (req, res) => {
@@ -72,7 +59,7 @@ router.get('/clean-database', async (req, res) => {
 
         // Agregar procesos a la cadena
         procesos.forEach(proceso => {
-            cadena += `${proceso.id},${proceso.nombre || ''},${proceso.descripcion || ''},${proceso.estandar || ''},${proceso.marca || ''},${proceso.modelo || ''},${proceso.serie || ''},${proceso.resolucion || ''},${proceso.intervalo_indicacion || ''},${proceso.calibrado_patron || ''},${proceso.prox_calibracion_patron || ''},${proceso.fecha_verificacion || ''},${proceso.proxima_verificacion || ''},`;
+            cadena += `${proceso.id},${proceso.nombre || ''},${proceso.descripcion || ''},${proceso.estandar || ''},${proceso.marca || ''},${proceso.modelo || ''},${proceso.serie || ''},${proceso.resolucion || ''},${proceso.intervalo_indicacion || ''},${proceso.calibrado_patron || ''},${proceso.prox_calibracion_patron || ''},${proceso.fecha_verificacion || ''},${proceso.proxima_verificacion || ''},${proceso.temp_inicial || ''},${proceso.temp_final || ''},${proceso.humedad_relativa_inicial || ''},${proceso.humedad_relativa_final || ''},${proceso.presion_atmosferica || ''},${proceso.numero_informe || ''},`;
         });
 
         // Agregar subprocesos a la cadena con $ al principio del id
@@ -82,7 +69,7 @@ router.get('/clean-database', async (req, res) => {
 
         // Agregar sensores a la cadena
         sensores.forEach(sensor => {
-            cadena += `!${sensor.id},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.serie || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},${sensor.temp_inicial || ''},${sensor.temp_final || ''},${sensor.humedad_relativa_inicial || ''},${sensor.humedad_relativa_final || ''},${sensor.presion_atmosferica || ''},${sensor.numero_informe || ''},`;
+            cadena += `!${sensor.id},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
         });
 
         // Eliminar los registros después de haber construido la cadena

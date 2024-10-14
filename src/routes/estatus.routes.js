@@ -9,8 +9,8 @@ router.put('/estatus/:id', async (req, res) => {
     const { estatus } = req.body;
 
     try {
-        // Actualizar el estatus
-        const result = await pool.query('UPDATE subprocesos SET estatus = ? WHERE id = ?', [estatus, id]);
+        // Actualizar el estatus del subproceso
+        const [result] = await pool.query('UPDATE subprocesos SET estatus = ? WHERE id = ?', [estatus, id]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Subproceso no encontrado' });
         }
@@ -20,29 +20,29 @@ router.put('/estatus/:id', async (req, res) => {
         const [subprocesos] = await pool.query('SELECT * FROM subprocesos');
         const [sensores] = await pool.query('SELECT * FROM sensores');
 
-        // Construir la cadena de proceso, subprocesos y sensores
+        // Construir la cadena para enviar
         let cadena = '';
 
         // Agregar procesos a la cadena
         procesos.forEach(proceso => {
-            cadena += `${proceso.id},${proceso.nombre || ''},${proceso.descripcion || ''},${proceso.estandar || ''},${proceso.marca || ''},${proceso.modelo || ''},${proceso.serie || ''},${proceso.resolucion || ''},${proceso.intervalo_indicacion || ''},${proceso.calibrado_patron || ''},${proceso.prox_calibracion_patron || ''},${proceso.fecha_verificacion || ''},${proceso.proxima_verificacion || ''},`;
+            cadena += `${proceso.id},${proceso.nombre || ''},${proceso.descripcion || ''},${proceso.estandar || ''},${proceso.marca || ''},${proceso.modelo || ''},${proceso.serie || ''},${proceso.resolucion || ''},${proceso.intervalo_indicacion || ''},${proceso.calibrado_patron || ''},${proceso.prox_calibracion_patron || ''},${proceso.fecha_verificacion || ''},${proceso.proxima_verificacion || ''},${proceso.temp_inicial || ''},${proceso.temp_final || ''},${proceso.humedad_relativa_inicial || ''},${proceso.humedad_relativa_final || ''},${proceso.presion_atmosferica || ''},${proceso.numero_informe || ''},`;
         });
 
-        // Agregar subprocesos a la cadena
+        // Agregar subprocesos a la cadena con $ al principio del id
         subprocesos.forEach(sub => {
             cadena += `$${sub.id},${sub.nombre || ''},${sub.descripcion || ''},${sub.valor_referencia || ''},${sub.incertidumbre_patron || ''},${sub.estatus || ''},`;
         });
 
         // Agregar sensores a la cadena
         sensores.forEach(sensor => {
-            cadena += `!${sensor.id},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.serie || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},${sensor.temp_inicial || ''},${sensor.temp_final || ''},${sensor.humedad_relativa_inicial || ''},${sensor.humedad_relativa_final || ''},${sensor.presion_atmosferica || ''},${sensor.numero_informe || ''},`;
+            cadena += `!${sensor.id},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
         });
 
-        // Construir la URL con el parámetro 'recibo'
+        // Construir la URL para enviar la cadena
         const url = `https://controlware.com.mx/recibe_avimex_tablet.asp?recibo=${encodeURIComponent(cadena)}`;
 
         try {
-            // Hacer la solicitud POST a la URL construida
+            // Realizar la solicitud POST a la URL construida
             const response = await axios.post(url, null, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -50,11 +50,11 @@ router.put('/estatus/:id', async (req, res) => {
             });
             console.log('Respuesta del servidor:', response.data);
         } catch (error) {
-            console.error('Error al hacer la solicitud POST:', error);
+            console.error('Error al enviar la cadena:', error);
             return res.status(500).json({ message: 'Error al enviar la cadena', error: error.message });
         }
 
-        // Responder con éxito
+        // Responder con éxito y enviar la cadena en la respuesta
         res.json({ message: 'Estatus actualizado con éxito y cadena enviada', cadena });
 
     } catch (error) {
