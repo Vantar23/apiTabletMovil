@@ -86,12 +86,12 @@ router.get('/sensores/:id', async (req, res) => {
 router.post('/sensores', async (req, res) => {
     let { nombre_sensor, mac_address, instrumento, marca, modelo, resolucion, intervalo_indicacion, emp } = req.body;
 
-    // Validar si ya hay 12 sensores
+    // Validar si ya hay 10 sensores
     try {
         const [rows] = await pool.query('SELECT COUNT(*) as cantidad FROM sensores');
         const cantidad = rows[0].cantidad;
-        if (cantidad >= 12) {
-            return res.status(400).json({ message: 'Ya se ha alcanzado el límite de 12 sensores.' });
+        if (cantidad >= 10) {
+            return res.status(400).json({ message: 'Ya se ha alcanzado el límite de 10 sensores.' });
         }
     } catch (error) {
         console.error('Error al verificar la cantidad de sensores:', error);
