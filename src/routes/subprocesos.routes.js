@@ -49,7 +49,7 @@ router.get('/subprocesses/:id', async (req, res) => {
     }
 });
 
-// Crear un subproceso asociado a un proceso específico
+// Crear un subproceso asociado a un proceso específico con un id_subproceso consecutivo
 router.post('/processes/:proceso_id/subprocesses', async (req, res) => {
     const { proceso_id } = req.params;
     const { nombre, descripcion, valor_referencia, incertidumbre_patron, estatus } = req.body;
@@ -72,11 +72,25 @@ router.post('/processes/:proceso_id/subprocesses', async (req, res) => {
     const estatusFinal = estatus !== undefined ? estatus : 0;
 
     try {
-        const result = await pool.query(
-            'INSERT INTO subprocesos (nombre, descripcion, proceso_id, valor_referencia, incertidumbre_patron, estatus) VALUES (?, ?, ?, ?, ?, ?)',
-            [nombre, descripcion, proceso_id, valor_referencia, incertidumbre_patron, estatusFinal]
+        // Obtener el siguiente número consecutivo para el subproceso en este proceso
+        const [rows] = await pool.query(
+            'SELECT COUNT(*) AS total FROM subprocesos WHERE proceso_id = ?',
+            [proceso_id]
         );
-        res.json({ id: result.insertId, message: 'Subproceso creado con éxito' });
+
+        const siguienteConsecutivo = rows[0].total + 1;
+
+        // Insertar el nuevo subproceso con el consecutivo asignado
+        const result = await pool.query(
+            'INSERT INTO subprocesos (id_subproceso, nombre, descripcion, proceso_id, valor_referencia, incertidumbre_patron, estatus) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [siguienteConsecutivo, nombre, descripcion, proceso_id, valor_referencia, incertidumbre_patron, estatusFinal]
+        );
+
+        res.json({ 
+            id: result.insertId, 
+            id_subproceso: siguienteConsecutivo, 
+            message: 'Subproceso creado con éxito' 
+        });
     } catch (error) {
         console.error('Error al crear el subproceso:', error);
         res.status(500).json({ message: 'Error al crear el subproceso' });
