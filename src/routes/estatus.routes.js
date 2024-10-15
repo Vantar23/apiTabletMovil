@@ -30,7 +30,7 @@ router.put('/estatus/:id', async (req, res) => {
 
         // Agregar subprocesos a la cadena con $ al principio del id
         subprocesos.forEach(sub => {
-            cadena += `$${sub.id},${sub.nombre || ''},${sub.descripcion || ''},${sub.valor_referencia || ''},${sub.incertidumbre_patron || ''},${sub.estatus || ''},`;
+            cadena += `$${sub.id_subproceso},${sub.nombre || ''},${sub.descripcion || ''},${sub.valor_referencia || ''},${sub.incertidumbre_patron || ''},${sub.estatus || ''},`;
         });
 
         // Agregar sensores a la cadena
