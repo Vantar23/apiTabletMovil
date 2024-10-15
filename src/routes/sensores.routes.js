@@ -14,8 +14,8 @@ router.get('/cantidad-sensores', async (req, res) => {
         const [rows] = await pool.query('SELECT COUNT(*) as cantidad FROM sensores');
         const cantidad = rows[0].cantidad;
 
-        if (cantidad >= 12) {
-            return res.status(400).json({ message: 'Ya se ha alcanzado el límite de 12 sensores.' });
+        if (cantidad >= 10) {
+            return res.status(400).json({ message: 'Ya se ha alcanzado el límite de 10 sensores.' });
         }
 
         res.json({ cantidad });
