@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { pool } from '../db.js';  // Asegúrate de que la conexión a la base de datos esté correctamente exportada
+import axios from 'axios'; // Importar axios para hacer la solicitud POST
 
 const router = Router();
 
-// Crear una cadena con los datos de las tablas procesos, subprocesos y sensores sin borrar nada
+// Crear una cadena con los datos de las tablas procesos, subprocesos y sensores y enviarla por POST
 router.get('/crea-cadena', async (req, res) => {
     try {
         // Obtener todos los datos de procesos
@@ -33,14 +34,19 @@ router.get('/crea-cadena', async (req, res) => {
             cadena += `!${sensor.id},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
         });
 
-        // Enviar la cadena construida sin eliminar los registros
-        res.status(200).json({ cadena });
+        // Enviar la cadena mediante una solicitud POST
+        const url = `https://controlware.com.mx/recibe_avimex_tablet.asp?recibo=${encodeURIComponent(cadena)}`;
+
+        await axios.post(url);
+
+        res.status(200).json({ message: 'Cadena enviada con éxito', cadena });
 
     } catch (error) {
-        console.error('Error al crear la cadena:', error);
-        res.status(500).json({ message: 'Error al crear la cadena', error });
+        console.error('Error al crear y enviar la cadena:', error);
+        res.status(500).json({ message: 'Error al crear y enviar la cadena', error });
     }
 });
+
 
 // Limpiar las tablas procesos, subprocesos y sensores después de crear la cadena
 router.get('/clean-database', async (req, res) => {
