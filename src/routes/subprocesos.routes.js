@@ -3,7 +3,7 @@ import { pool } from '../db.js';
 
 const router = Router();
 
-// Función para validar si un valor es decimal con hasta 4 decimales
+// Función para validar si un valor es decimal con hasta 4 decimales ds
 const isDecimal = (value) => {
     return /^-?\d+(\.\d{1,4})?$/.test(value);
 };
