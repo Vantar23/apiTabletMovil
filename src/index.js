@@ -20,7 +20,7 @@ app.use(sensoresRoutes);       // Nueva ruta para los sensores
 app.use(estatusRoutes);        // Ruta para manejar el estatus
 
 // Poner a escuchar el servidor
-const PORT = process.env.PORT || 3306;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
