@@ -45,7 +45,7 @@ router.get('/crea-cadena', async (req, res) => {
 
     } catch (error) {
         console.error('Error al crear y enviar la cadena:', error);
-        res.status(500).json({ message: 'Error al crear y enviar la cadena', cadena });
+        res.status(500).json({ message: 'Error al crear y enviar la cadena', error });
     }
 });
 
