@@ -30,22 +30,26 @@ router.get('/crea-cadena', async (req, res) => {
         });
 
         // Agregar sensores a la cadena
-        sensores.forEach(sensor => {
-            cadena += `!${sensor.id},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
+        sensores.forEach((sensor, index) => {
+            // Mantener el mismo formato, usar un consecutivo a partir de 1
+            const consecutivo = index + 1;
+            cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
         });
 
-        // Enviar la cadena mediante una solicitud POST
+        // Asegurarse de que la cadena esté correctamente codificada para enviar en la URL
         const url = `https://controlware.com.mx/recibe_avimex_tablet.asp?recibo=${encodeURIComponent(cadena)}`;
 
+        // Enviar la cadena mediante una solicitud POST
         await axios.post(url);
 
         res.status(200).json({ message: 'Cadena enviada con éxito', cadena });
 
     } catch (error) {
         console.error('Error al crear y enviar la cadena:', error);
-        res.status(500).json({ message: 'Error al crear y enviar la cadena', error });
+        res.status(500).json({ message: 'Error al crear y enviar la cadena', error, cadena });
     }
 });
+
 
 
 // Limpiar las tablas procesos, subprocesos y sensores después de crear la cadena
