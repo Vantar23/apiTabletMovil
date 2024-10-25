@@ -7,9 +7,6 @@ const router = Router();
 // Crear una cadena con los datos de las tablas procesos, subprocesos y sensores y enviarla por POST
 router.get('/crea-cadena', async (req, res) => {
     try {
-        // Inicializar la cadena vacía
-        let cadena = '';
-
         // Obtener todos los datos de procesos
         const [procesos] = await pool.query('SELECT * FROM procesos');
 
@@ -20,6 +17,8 @@ router.get('/crea-cadena', async (req, res) => {
         const [sensores] = await pool.query('SELECT * FROM sensores');
 
         // Construir la cadena de envío
+        let cadena = '';
+
         // Agregar procesos a la cadena
         procesos.forEach(proceso => {
             cadena += `${proceso.id},${proceso.nombre || ''},${proceso.descripcion || ''},${proceso.estandar || ''},${proceso.marca || ''},${proceso.modelo || ''},${proceso.serie || ''},${proceso.resolucion || ''},${proceso.intervalo_indicacion || ''},${proceso.calibrado_patron || ''},${proceso.prox_calibracion_patron || ''},${proceso.fecha_verificacion || ''},${proceso.proxima_verificacion || ''},${proceso.temp_inicial || ''},${proceso.temp_final || ''},${proceso.humedad_relativa_inicial || ''},${proceso.humedad_relativa_final || ''},${proceso.presion_atmosferica || ''},${proceso.numero_informe || ''},`;
@@ -46,11 +45,9 @@ router.get('/crea-cadena', async (req, res) => {
 
     } catch (error) {
         console.error('Error al crear y enviar la cadena:', error);
-        // En caso de error, también enviar la cadena construida
-        res.status(500).json({ message: 'Error al crear y enviar la cadena', cadena, error });
+        res.status(500).json({ message: 'Error al crear y enviar la cadena', cadena });
     }
 });
-
 
 
 // Limpiar las tablas procesos, subprocesos y sensores después de crear la cadena
