@@ -10,7 +10,7 @@ router.put('/estatus/:id', async (req, res) => {
 
     try {
         // Actualizar el estatus del subproceso
-        const [result] = await pool.query('UPDATE subprocesos SET estatus = ? WHERE id = ?', [estatus, id]);
+        const [result] = await pool.query('UPDATE subprocesos SET estatus = ? WHERE id_subproceso = ?', [estatus, id]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Subproceso no encontrado' });
         }
@@ -33,17 +33,20 @@ router.put('/estatus/:id', async (req, res) => {
             cadena += `$${sub.id_subproceso},${sub.nombre || ''},${sub.descripcion || ''},${sub.valor_referencia || ''},${sub.incertidumbre_patron || ''},${sub.estatus || ''},`;
         });
 
-        // Agregar sensores a la cadena
-        sensores.forEach(sensor => {
-            cadena += `!${sensor.id},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
+        sensores.forEach((sensor, index) => {
+            // Usar index + 1 para crear un consecutivo comenzando desde 1
+            const consecutivo = index + 1;
+            cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
         });
-
-        // Construir la URL para enviar la cadena
-        const url = `https://controlware.com.mx/recibe_avimex_tablet.asp?recibo=${encodeURIComponent(cadena)}`;
+        
+        // Enviar la cadena mediante una solicitud POST
+        const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
+        const data = new URLSearchParams();
+        data.append('recibo', cadena);
 
         try {
-            // Realizar la solicitud POST a la URL construida
-            const response = await axios.post(url, null, {
+            // Realizar la solicitud POST a la URL
+            const response = await axios.post(url, data.toString(), {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
@@ -62,5 +65,6 @@ router.put('/estatus/:id', async (req, res) => {
         res.status(500).json({ message: 'Error al actualizar el estatus del subproceso', error: error.message });
     }
 });
+
 
 export default router;

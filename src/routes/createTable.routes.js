@@ -30,9 +30,12 @@ router.get('/crea-cadena', async (req, res) => {
         });
 
         // Agregar sensores a la cadena
-        sensores.forEach(sensor => {
-            cadena += `!${sensor.id},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
+        sensores.forEach((sensor, index) => {
+            // Usar index + 1 para crear un consecutivo comenzando desde 1
+            const consecutivo = index + 1;
+            cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
         });
+        
 
         // Enviar la cadena mediante una solicitud POST
         const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
