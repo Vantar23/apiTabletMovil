@@ -84,47 +84,20 @@ router.get('/sensores/:id', async (req, res) => {
 
 // Crear un nuevo sensor
 router.post('/sensores', async (req, res) => {
-    let { nombre_sensor, mac_address, instrumento, marca, modelo, resolucion, intervalo_indicacion, emp } = req.body;
+    const sensores = req.body; // Espera un arreglo de objetos sensores
 
-    // Validar si ya hay 12 sensores
+    if (!Array.isArray(sensores) || sensores.length === 0) {
+        return res.status(400).json({ message: 'Se requiere un arreglo de sensores.' });
+    }
+
     try {
+        // Validar si ya hay 12 sensores
         const [rows] = await pool.query('SELECT COUNT(*) as cantidad FROM sensores');
-        const cantidad = rows[0].cantidad;
-        if (cantidad >= 12) {
-            return res.status(400).json({ message: 'Ya se ha alcanzado el límite de 12 sensores.' });
+        const cantidadActual = rows[0].cantidad;
+        if (cantidadActual + sensores.length > 12) {
+            return res.status(400).json({ message: 'Se ha excedido el límite de 12 sensores.' });
         }
-    } catch (error) {
-        console.error('Error al verificar la cantidad de sensores:', error);
-        return res.status(500).json({ message: 'Error al verificar la cantidad de sensores' });
-    }
 
-    // Validaciones para campos faltantes
-    if (!nombre_sensor) {
-        return res.status(400).json({ message: 'Favor de llenar el campo nombre_sensor' });
-    }
-    if (!mac_address) {
-        return res.status(400).json({ message: 'Favor de llenar el campo mac_address' });
-    }
-    if (!instrumento) {
-        return res.status(400).json({ message: 'Favor de llenar el campo instrumento' });
-    }
-    if (!marca) {
-        return res.status(400).json({ message: 'Favor de llenar el campo marca' });
-    }
-    if (!modelo) {
-        return res.status(400).json({ message: 'Favor de llenar el campo modelo' });
-    }
-    if (!resolucion) {
-        return res.status(400).json({ message: 'Favor de llenar el campo resolucion' });
-    }
-    if (!intervalo_indicacion) {
-        return res.status(400).json({ message: 'Favor de llenar el campo intervalo_indicacion' });
-    }
-    if (!emp) {
-        return res.status(400).json({ message: 'Favor de llenar el campo emp' });
-    }
-
-    try {
         // Obtener el único id de la tabla procesos
         const [procesos] = await pool.query('SELECT id FROM procesos');
         if (procesos.length !== 1) {
@@ -132,20 +105,38 @@ router.post('/sensores', async (req, res) => {
         }
         const id_proceso = procesos[0].id;
 
-        // Formatear la MAC Address en minúsculas
-        mac_address = formatMacAddress(mac_address).toLowerCase();
+        // Procesar cada sensor del arreglo
+        for (const sensor of sensores) {
+            let { nombre_sensor, mac_address, instrumento, marca, modelo, resolucion, intervalo_indicacion, emp } = sensor;
 
-        const result = await pool.query(
-            `INSERT INTO sensores (nombre_sensor, mac_address, instrumento, marca, modelo, resolucion, intervalo_indicacion, emp, id_proceso) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
-            [nombre_sensor, mac_address, instrumento, marca, modelo, resolucion, intervalo_indicacion, emp, id_proceso]
-        );
-        res.json({ id: result.insertId, message: 'Sensor creado con éxito' });
+            // Validaciones para campos faltantes
+            if (!nombre_sensor || !mac_address || !instrumento || !marca || !modelo || !resolucion || !intervalo_indicacion || !emp) {
+                return res.status(400).json({ message: 'Todos los campos son obligatorios para cada sensor.' });
+            }
+
+            // Formatear la MAC Address en minúsculas
+            mac_address = formatMacAddress(mac_address).toLowerCase();
+
+            // Intentar insertar el sensor
+            try {
+                const result = await pool.query(
+                    `INSERT INTO sensores (nombre_sensor, mac_address, instrumento, marca, modelo, resolucion, intervalo_indicacion, emp, id_proceso) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+                    [nombre_sensor, mac_address, instrumento, marca, modelo, resolucion, intervalo_indicacion, emp, id_proceso]
+                );
+            } catch (error) {
+                console.error('Error al crear el sensor:', error);
+                return res.status(500).json({ message: 'Error al crear uno de los sensores', error });
+            }
+        }
+
+        res.json({ message: 'Sensores creados con éxito' });
     } catch (error) {
-        console.error('Error al crear el sensor:', error);
-        res.status(500).json({ message: 'Error al crear el sensor', error });
+        console.error('Error al verificar la cantidad de sensores o procesos:', error);
+        return res.status(500).json({ message: 'Error al verificar la cantidad de sensores o procesos' });
     }
 });
+
 
 // Función para formatear la MAC Address
 const formatMacAddress = (mac) => {
@@ -225,5 +216,20 @@ router.delete('/sensores/:id', async (req, res) => {
         res.status(500).json({ message: 'Error al eliminar el sensor' });
     }
 });
+
+// Eliminar todos los sensores
+router.delete('/sensores', async (req, res) => {
+    try {
+        const result = await pool.query('DELETE FROM sensores');
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'No hay sensores para eliminar' });
+        }
+        res.json({ message: 'Todos los sensores eliminados con éxito' });
+    } catch (error) {
+        console.error('Error al eliminar todos los sensores:', error);
+        res.status(500).json({ message: 'Error al eliminar todos los sensores' });
+    }
+});
+
 
 export default router;
