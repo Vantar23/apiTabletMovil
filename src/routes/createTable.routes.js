@@ -34,14 +34,22 @@ router.get('/crea-cadena', async (req, res) => {
             cadena += `!${sensor.id},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
         });
 
-        // Mostrar la cadena en la respuesta
-        res.status(200).json({ message: 'Cadena creada con éxito', cadena });
+        // Enviar la cadena mediante una solicitud POST
+        const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
+        const data = {
+            recibo: cadena // Aquí 'cadena' es la variable que contiene tu dato.
+        };
+
+        axios.post(url, data)
+
+        res.status(200).json({ message: 'Cadena enviada con éxito', cadena });
 
     } catch (error) {
-        console.error('Error al crear la cadena:', error);
-        res.status(500).json({ message: 'Error al crear la cadena', error });
+        console.error('Error al crear y enviar la cadena:', error);
+        res.status(500).json({ message: 'Error al crear y enviar la cadena', error });
     }
 });
+
 
 // Limpiar las tablas procesos, subprocesos y sensores después de crear la cadena
 router.get('/clean-database', async (req, res) => {
