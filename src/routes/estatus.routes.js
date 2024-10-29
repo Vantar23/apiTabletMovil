@@ -41,17 +41,14 @@ router.put('/estatus/:id', async (req, res) => {
         
         // Enviar la cadena mediante una solicitud POST
         const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
-        const data = new URLSearchParams();
-        data.append('recibo', cadena);
+        const data = {
+            recibo: cadena // Aquí 'cadena' es la variable que contiene tu dato.
+        };
 
-        try {
-            // Realizar la solicitud POST a la URL
-            const response = await axios.post(url, data.toString(), {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-            });
-            console.log('Respuesta del servidor:', response.data);
+        axios.post(url, data)
+
+        res.status(200).json({ message: 'Cadena enviada con éxito', cadena });
+        
         } catch (error) {
             console.error('Error al enviar la cadena:', error);
             return res.status(500).json({ message: 'Error al enviar la cadena', error: error.message });
