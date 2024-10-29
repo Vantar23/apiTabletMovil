@@ -33,11 +33,13 @@ router.put('/estatus/:id', async (req, res) => {
             cadena += `$${sub.id_subproceso},${sub.nombre || ''},${sub.descripcion || ''},${sub.valor_referencia || ''},${sub.incertidumbre_patron || ''},${sub.estatus || ''},`;
         });
 
+        // Agregar sensores a la cadena
         sensores.forEach((sensor, index) => {
             // Usar index + 1 para crear un consecutivo comenzando desde 1
             const consecutivo = index + 1;
             cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
         });
+        
      // Enviar la cadena mediante una solicitud POST
 const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
 const data = {
