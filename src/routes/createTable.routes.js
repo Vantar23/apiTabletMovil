@@ -32,7 +32,6 @@ router.get('/crea-cadena', async (req, res) => {
 
         // Convertir la cadena a un formato hexadecimal comprimido
         const cadenaHex = Buffer.from(cadena, 'utf-8').toString('hex');
-
         console.log('Cadena en hexadecimal comprimido:', cadenaHex);
 
         // Preparar los datos para el envío POST
@@ -51,7 +50,9 @@ router.get('/crea-cadena', async (req, res) => {
             console.log('Respuesta del servidor:', response.data);
             res.status(200).json({ message: 'Cadena en hexadecimal enviada con éxito', cadenaHex });
         } catch (error) {
+            // Si falla, mostrar el hexadecimal en la consola
             console.error('Error al enviar la cadena en hexadecimal:', error);
+            console.log('Cadena en hexadecimal que causó el fallo:', cadenaHex);
             res.status(500).json({ message: 'Error al enviar la cadena en hexadecimal', error: error.message });
         }
     } catch (error) {
@@ -59,7 +60,6 @@ router.get('/crea-cadena', async (req, res) => {
         res.status(500).json({ message: 'Error al crear y enviar la cadena', error: error.message });
     }
 });
-
 
 // Limpiar las tablas procesos, subprocesos y sensores después de crear la cadena
 router.get('/clean-database', async (req, res) => {
