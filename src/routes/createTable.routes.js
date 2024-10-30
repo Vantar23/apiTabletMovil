@@ -29,26 +29,29 @@ router.get('/crea-cadena', async (req, res) => {
             const consecutivo = (index + 1).toString(); // Convertir a string
             cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
         });
-        
 
-        // Preparar los datos para el envío POST
+        // Dividir la cadena en dos partes
+        const mitad = Math.floor(cadena.length / 2);
+        const cadenaParte1 = cadena.substring(0, mitad);
+
+        // Preparar los datos para el envío de solo la primera mitad
         const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
         const data = new URLSearchParams();
-        data.append('recibo', cadena);
+        data.append('recibo', cadenaParte1);
 
         try {
-            // Realizar la solicitud POST a la URL con datos de formulario
+            // Realizar la solicitud POST a la URL con la primera mitad de los datos de formulario
             const response = await axios.post(url, data, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
             });
 
-            console.log('Respuesta del servidor:', response.data);
-            res.status(200).json({ message: 'Cadena enviada con éxito', cadena });
+            console.log('Respuesta del servidor (Parte 1):', response.data);
+            res.status(200).json({ message: 'Primera parte de la cadena enviada con éxito', cadenaParte1 });
         } catch (error) {
-            console.error('Error al enviar la cadena:', error);
-            res.status(500).json({ message: 'Error al enviar la cadena', error: error.message });
+            console.error('Error al enviar la primera parte de la cadena:', error);
+            res.status(500).json({ message: 'Error al enviar la primera parte de la cadena', error: error.message });
         }
     } catch (error) {
         console.error('Error al crear y enviar la cadena:', error);
