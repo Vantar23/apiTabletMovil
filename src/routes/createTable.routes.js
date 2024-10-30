@@ -3,6 +3,7 @@ import { pool } from '../db.js';  // Asegúrate de que la conexión a la base de
 import axios from 'axios'; // Importar axios para hacer la solicitud POST
 
 const router = Router();
+
 router.get('/crea-cadena', async (req, res) => {
     try {
         // Obtener todos los datos de procesos, subprocesos y sensores
@@ -29,17 +30,17 @@ router.get('/crea-cadena', async (req, res) => {
             cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
         });
 
-        // Codificar la cadena en Base64
-        const cadenaBase64 = Buffer.from(cadena, 'utf-8').toString('base64');
-        console.log('Cadena en Base64:', cadenaBase64);
+        // Codificar la cadena como URL
+        const cadenaEncoded = encodeURIComponent(cadena); // Codificar como URL
+        console.log('Cadena codificada como URL:', cadenaEncoded);
 
         // Preparar los datos para el envío POST
         const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
         const data = new URLSearchParams();
-        data.append('recibo', cadenaBase64);
+        data.append('recibo', cadenaEncoded);
 
         try {
-            // Realizar la solicitud POST a la URL con datos en Base64
+            // Realizar la solicitud POST a la URL con datos codificados
             const response = await axios.post(url, data, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -47,12 +48,11 @@ router.get('/crea-cadena', async (req, res) => {
             });
 
             console.log('Respuesta del servidor:', response.data);
-            res.status(200).json({ message: 'Cadena en Base64 enviada con éxito', cadenaBase64 });
+            res.status(200).json({ message: 'Cadena codificada y enviada con éxito', cadenaEncoded });
         } catch (error) {
-            // Si falla, mostrar el Base64 en la consola
-            console.error('Error al enviar la cadena en Base64:', error);
-            console.log('Cadena en Base64 que causó el fallo:', cadenaBase64);
-            res.status(500).json({ message: 'Error al enviar la cadena en Base64', error: error.message });
+            console.error('Error al enviar la cadena codificada:', error);
+            console.log('Cadena codificada que causó el fallo:', cadenaEncoded);
+            res.status(500).json({ message: 'Error al enviar la cadena codificada', error: error.message });
         }
     } catch (error) {
         console.error('Error al crear y enviar la cadena:', error);
