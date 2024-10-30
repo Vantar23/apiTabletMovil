@@ -37,7 +37,9 @@ router.get('/crea-cadena', async (req, res) => {
         // Preparar los datos para el envío POST
         const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
         const data = new URLSearchParams();
-        data.append('recibo', cadenaHex);
+        const fragmentoHex = cadenaHex.substring(0, 500); // Prueba con los primeros 500 caracteres
+        data.append('recibo', fragmentoHex);
+
 
         try {
             // Realizar la solicitud POST a la URL con datos en hexadecimal
