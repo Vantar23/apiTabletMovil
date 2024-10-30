@@ -3,7 +3,6 @@ import { pool } from '../db.js';  // Asegúrate de que la conexión a la base de
 import axios from 'axios'; // Importar axios para hacer la solicitud POST
 
 const router = Router();
-
 router.get('/crea-cadena', async (req, res) => {
     try {
         // Obtener todos los datos de procesos, subprocesos y sensores
@@ -30,19 +29,17 @@ router.get('/crea-cadena', async (req, res) => {
             cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
         });
 
-        // Convertir la cadena a un formato hexadecimal comprimido
-        const cadenaHex = Buffer.from(cadena, 'utf-8').toString('hex');
-        console.log('Cadena en hexadecimal comprimido:', cadenaHex);
+        // Codificar la cadena en Base64
+        const cadenaBase64 = Buffer.from(cadena, 'utf-8').toString('base64');
+        console.log('Cadena en Base64:', cadenaBase64);
 
         // Preparar los datos para el envío POST
         const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
         const data = new URLSearchParams();
-        const fragmentoHex = cadenaHex.substring(0, 500); // Prueba con los primeros 500 caracteres
-        data.append('recibo', fragmentoHex);
-
+        data.append('recibo', cadenaBase64);
 
         try {
-            // Realizar la solicitud POST a la URL con datos en hexadecimal
+            // Realizar la solicitud POST a la URL con datos en Base64
             const response = await axios.post(url, data, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -50,18 +47,19 @@ router.get('/crea-cadena', async (req, res) => {
             });
 
             console.log('Respuesta del servidor:', response.data);
-            res.status(200).json({ message: 'Cadena en hexadecimal enviada con éxito', cadenaHex });
+            res.status(200).json({ message: 'Cadena en Base64 enviada con éxito', cadenaBase64 });
         } catch (error) {
-            // Si falla, mostrar el hexadecimal en la consola
-            console.error('Error al enviar la cadena en hexadecimal:', error);
-            console.log('Cadena en hexadecimal que causó el fallo:', cadenaHex);
-            res.status(500).json({ message: 'Error al enviar la cadena en hexadecimal', error: error.message });
+            // Si falla, mostrar el Base64 en la consola
+            console.error('Error al enviar la cadena en Base64:', error);
+            console.log('Cadena en Base64 que causó el fallo:', cadenaBase64);
+            res.status(500).json({ message: 'Error al enviar la cadena en Base64', error: error.message });
         }
     } catch (error) {
         console.error('Error al crear y enviar la cadena:', error);
         res.status(500).json({ message: 'Error al crear y enviar la cadena', error: error.message });
     }
 });
+
 
 // Limpiar las tablas procesos, subprocesos y sensores después de crear la cadena
 router.get('/clean-database', async (req, res) => {
