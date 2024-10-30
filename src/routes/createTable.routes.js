@@ -33,7 +33,7 @@ router.get('/crea-cadena', async (req, res) => {
         // Preparar los datos para el envío POST
         const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
         const data = new URLSearchParams();
-        data.append('recibo', 'prueba');
+        data.append('recibo', cadena);
 
         try {
             // Realizar la solicitud POST a la URL con datos de formulario
