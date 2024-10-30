@@ -36,16 +36,26 @@ router.get('/crea-cadena', async (req, res) => {
             cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
         });
         
-
-        // Enviar la cadena mediante una solicitud POST
         const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
-        const data = {
-            recibo: cadena // Aquí 'cadena' es la variable que contiene tu dato.
-        };
+        const data = new URLSearchParams();
+        data.append('recibo', cadena); // Aquí 'cadena' es la variable que contiene tu dato
+        
+        try {
+            // Realizar la solicitud POST a la URL con datos de formulario
+            const response = await axios.post(url, data, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
+        
+            console.log('Respuesta del servidor:', response.data);
+            res.status(200).json({ message: 'Cadena enviada con éxito', cadena });
+        } catch (error) {
+            console.error('Error al crear y enviar la cadena:', error);
+            res.status(500).json({ message: 'Error al crear y enviar la cadena', error: error.message });
+        }
+        
 
-        axios.post(url, data)
-
-        res.status(200).json({ message: 'Cadena enviada con éxito', cadena });
 
     } catch (error) {
         console.error('Error al crear y enviar la cadena:', error);
