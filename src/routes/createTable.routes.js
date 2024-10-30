@@ -30,6 +30,9 @@ router.get('/crea-cadena', async (req, res) => {
             cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
         });
 
+        // Mostrar el contenido completo de la cadena en la consola antes de dividirla
+        console.log('Contenido de la cadena completa:', cadena);
+
         // Dividir la cadena en dos partes
         const mitad = Math.floor(cadena.length / 2);
         const cadenaParte1 = cadena.substring(0, mitad);
@@ -58,6 +61,7 @@ router.get('/crea-cadena', async (req, res) => {
         res.status(500).json({ message: 'Error al crear y enviar la cadena', error: error.message });
     }
 });
+
 
 
 // Limpiar las tablas procesos, subprocesos y sensores después de crear la cadena
