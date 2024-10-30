@@ -4,16 +4,11 @@ import axios from 'axios'; // Importar axios para hacer la solicitud POST
 
 const router = Router();
 
-// Crear una cadena con los datos de las tablas procesos, subprocesos y sensores y enviarla por POST
 router.get('/crea-cadena', async (req, res) => {
     try {
-        // Obtener todos los datos de procesos
+        // Obtener todos los datos de procesos, subprocesos y sensores
         const [procesos] = await pool.query('SELECT * FROM procesos');
-
-        // Obtener todos los subprocesos
         const [subprocesos] = await pool.query('SELECT * FROM subprocesos');
-
-        // Obtener todos los sensores
         const [sensores] = await pool.query('SELECT * FROM sensores');
 
         // Construir la cadena de envío
@@ -31,15 +26,15 @@ router.get('/crea-cadena', async (req, res) => {
 
         // Agregar sensores a la cadena
         sensores.forEach((sensor, index) => {
-            // Usar index + 1 para crear un consecutivo comenzando desde 1
             const consecutivo = index + 1;
             cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
         });
-        
+
+        // Preparar los datos para el envío POST
         const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
         const data = new URLSearchParams();
-        data.append('recibo', cadena); // Aquí 'cadena' es la variable que contiene tu dato
-        
+        data.append('recibo', cadena);
+
         try {
             // Realizar la solicitud POST a la URL con datos de formulario
             const response = await axios.post(url, data, {
@@ -47,19 +42,16 @@ router.get('/crea-cadena', async (req, res) => {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
             });
-        
+
             console.log('Respuesta del servidor:', response.data);
             res.status(200).json({ message: 'Cadena enviada con éxito', cadena });
         } catch (error) {
-            console.error('Error al crear y enviar la cadena:', error);
-            res.status(500).json({ message: 'Error al crear y enviar la cadena', error: error.message });
+            console.error('Error al enviar la cadena:', error);
+            res.status(500).json({ message: 'Error al enviar la cadena', error: error.message });
         }
-        
-
-
     } catch (error) {
         console.error('Error al crear y enviar la cadena:', error);
-        res.status(500).json({ message: 'Error al crear y enviar la cadena', error });
+        res.status(500).json({ message: 'Error al crear y enviar la cadena', error: error.message });
     }
 });
 
