@@ -60,9 +60,6 @@ router.get('/crea-cadena', async (req, res) => {
     }
 });
 
-module.exports = router;
-
-
 
 // Limpiar las tablas procesos, subprocesos y sensores después de crear la cadena
 router.get('/clean-database', async (req, res) => {
