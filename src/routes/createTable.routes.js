@@ -25,22 +25,19 @@ router.get('/crea-cadena', async (req, res) => {
         });
 
         // Agregar sensores a la cadena
-        sensores.forEach((sensor, index) => {
-            const consecutivo = (index + 1).toString(); // Convertir a string
-            cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
-        });
+    sensores.forEach((sensor, index) => {
+        const consecutivo = (index + 1).toString(); // Convertir a string
+        cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
+    });
 
-        // Codificar la cadena en Base64
-        const cadenaBase64 = Buffer.from(cadena, 'utf-8').toString('base64');
-        console.log('Cadena codificada en Base64:', cadenaBase64);
 
         // Preparar los datos para el envío POST
         const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
         const data = new URLSearchParams();
-        data.append('recibo', cadenaBase64);
+        data.append('recibo', cadena);
 
         try {
-            // Realizar la solicitud POST a la URL con datos en Base64
+            // Realizar la solicitud POST a la URL con datos de formulario
             const response = await axios.post(url, data, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -48,18 +45,16 @@ router.get('/crea-cadena', async (req, res) => {
             });
 
             console.log('Respuesta del servidor:', response.data);
-            res.status(200).json({ message: 'Cadena en Base64 enviada con éxito', cadenaBase64 });
+            res.status(200).json({ message: 'Cadena enviada con éxito', cadena });
         } catch (error) {
-            console.error('Error al enviar la cadena en Base64:', error);
-            console.log('Cadena en Base64 que causó el fallo:', cadenaBase64);
-            res.status(500).json({ message: 'Error al enviar la cadena en Base64', error: error.message });
+            console.error('Error al enviar la cadena:', error);
+            res.status(500).json({ message: 'Error al enviar la cadena', error: error.message });
         }
     } catch (error) {
         console.error('Error al crear y enviar la cadena:', error);
         res.status(500).json({ message: 'Error al crear y enviar la cadena', error: error.message });
     }
 });
-
 
 
 // Limpiar las tablas procesos, subprocesos y sensores después de crear la cadena
