@@ -4,10 +4,6 @@ import axios from 'axios'; // Importar axios para hacer la solicitud POST
 
 const router = Router();
 
-const router = require('express').Router();
-const axios = require('axios');
-const pool = require('../path/to/your/database/pool');
-
 router.get('/crea-cadena', async (req, res) => {
     try {
         // Obtener todos los datos de procesos, subprocesos y sensores
