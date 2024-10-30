@@ -4,6 +4,10 @@ import axios from 'axios'; // Importar axios para hacer la solicitud POST
 
 const router = Router();
 
+const router = require('express').Router();
+const axios = require('axios');
+const pool = require('../path/to/your/database/pool');
+
 router.get('/crea-cadena', async (req, res) => {
     try {
         // Obtener todos los datos de procesos, subprocesos y sensores
@@ -30,37 +34,37 @@ router.get('/crea-cadena', async (req, res) => {
             cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
         });
 
-        // Mostrar el contenido completo de la cadena en la consola antes de dividirla
-        console.log('Contenido de la cadena completa:', cadena);
+        // Convertir la cadena a un formato hexadecimal comprimido
+        const cadenaHex = Buffer.from(cadena, 'utf-8').toString('hex');
 
-        // Dividir la cadena en dos partes
-        const mitad = Math.floor(cadena.length / 2);
-        const cadenaParte1 = cadena.substring(0, mitad);
+        console.log('Cadena en hexadecimal comprimido:', cadenaHex);
 
-        // Preparar los datos para el envío de solo la primera mitad
+        // Preparar los datos para el envío POST
         const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
         const data = new URLSearchParams();
-        data.append('recibo', cadenaParte1);
+        data.append('recibo', cadenaHex);
 
         try {
-            // Realizar la solicitud POST a la URL con la primera mitad de los datos de formulario
+            // Realizar la solicitud POST a la URL con datos en hexadecimal
             const response = await axios.post(url, data, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
             });
 
-            console.log('Respuesta del servidor (Parte 1):', response.data);
-            res.status(200).json({ message: 'Primera parte de la cadena enviada con éxito', cadenaParte1 });
+            console.log('Respuesta del servidor:', response.data);
+            res.status(200).json({ message: 'Cadena en hexadecimal enviada con éxito', cadenaHex });
         } catch (error) {
-            console.error('Error al enviar la primera parte de la cadena:', error);
-            res.status(500).json({ message: 'Error al enviar la primera parte de la cadena', error: error.message });
+            console.error('Error al enviar la cadena en hexadecimal:', error);
+            res.status(500).json({ message: 'Error al enviar la cadena en hexadecimal', error: error.message });
         }
     } catch (error) {
         console.error('Error al crear y enviar la cadena:', error);
         res.status(500).json({ message: 'Error al crear y enviar la cadena', error: error.message });
     }
 });
+
+module.exports = router;
 
 
 
