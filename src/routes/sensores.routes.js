@@ -83,19 +83,13 @@ router.get('/sensores/:id', async (req, res) => {
 });
 // Crear un nuevo sensor
 router.post('/sensores', async (req, res) => {
-    const sensor = req.body; // Espera un único objeto sensor
-
-    // Validaciones para campos faltantes
-    let { nombre_sensor, mac_address, instrumento, marca, modelo, resolucion, intervalo_indicacion, emp } = sensor;
-    if (!nombre_sensor || !mac_address || !instrumento || !marca || !modelo || !resolucion || !intervalo_indicacion || !emp) {
-        return res.status(400).json({ message: 'Todos los campos son obligatorios para el sensor.' });
-    }
+    const sensores = Array.isArray(req.body) ? req.body : [req.body]; // Convertir a arreglo si es un objeto único
 
     try {
         // Validar si ya hay 12 sensores
         const [rows] = await pool.query('SELECT COUNT(*) as cantidad FROM sensores');
         const cantidadActual = rows[0].cantidad;
-        if (cantidadActual >= 12) {
+        if (cantidadActual + sensores.length > 12) {
             return res.status(400).json({ message: 'Se ha excedido el límite de 12 sensores.' });
         }
 
@@ -106,26 +100,31 @@ router.post('/sensores', async (req, res) => {
         }
         const id_proceso = procesos[0].id;
 
-        // Formatear la MAC Address en minúsculas
-        mac_address = formatMacAddress(mac_address).toLowerCase();
+        for (const sensor of sensores) {
+            // Desestructurar y validar cada sensor
+            let { nombre_sensor, mac_address, instrumento, marca, modelo, resolucion, intervalo_indicacion, emp } = sensor;
+            if (!nombre_sensor || !mac_address || !instrumento || !marca || !modelo || !resolucion || !intervalo_indicacion || !emp) {
+                return res.status(400).json({ message: 'Todos los campos son obligatorios para cada sensor.' });
+            }
 
-        // Intentar insertar el sensor
-        try {
+            // Formatear la MAC Address en minúsculas
+            mac_address = formatMacAddress(mac_address).toLowerCase();
+
+            // Intentar insertar cada sensor
             await pool.query(
                 `INSERT INTO sensores (nombre_sensor, mac_address, instrumento, marca, modelo, resolucion, intervalo_indicacion, emp, id_proceso) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [nombre_sensor, mac_address, instrumento, marca, modelo, resolucion, intervalo_indicacion, emp, id_proceso]
             );
-            res.json({ message: 'Sensor creado con éxito' });
-        } catch (error) {
-            console.error('Error al crear el sensor:', error);
-            return res.status(500).json({ message: 'Error al crear el sensor', error });
         }
+
+        res.json({ message: 'Sensores creados con éxito' });
     } catch (error) {
-        console.error('Error al verificar la cantidad de sensores o procesos:', error);
-        return res.status(500).json({ message: 'Error al verificar la cantidad de sensores o procesos' });
+        console.error('Error al crear los sensores:', error);
+        return res.status(500).json({ message: 'Error al crear los sensores', error });
     }
 });
+
 
 
 // Función para formatear la MAC Address
