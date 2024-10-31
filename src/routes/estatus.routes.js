@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { pool } from '../db.js';
-import axios from 'axios'; // Importamos axios
+import axios from 'axios';
 
 const router = Router();
 
@@ -10,7 +10,7 @@ router.put('/estatus/:id', async (req, res) => {
 
     try {
         // Actualizar el estatus del subproceso
-        const [result] = await pool.query('UPDATE subprocesos SET estatus = ? WHERE id_subproceso = ?', [estatus, id]);
+        const [result] = await pool.query('UPDATE subprocesos SET estatus = ? WHERE id = ?', [estatus, id]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Subproceso no encontrado' });
         }
@@ -35,33 +35,33 @@ router.put('/estatus/:id', async (req, res) => {
 
         // Agregar sensores a la cadena
         sensores.forEach((sensor, index) => {
-            // Usar index + 1 para crear un consecutivo comenzando desde 1
             const consecutivo = index + 1;
             cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
         });
-        
-     // Enviar la cadena mediante una solicitud POST
-const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
-const data = {
-    recibo: cadena // Aquí 'cadena' es la variable que contiene tu dato.
-};
 
-axios.post(url, data)
-    .then(response => {
-        console.log('Respuesta del servidor:', response.data);
-        res.status(200).json({ message: 'Cadena enviada con éxito', cadena });
-    })
-    .catch(error => {
-        console.error('Error al enviar la cadena:', error);
-        res.status(500).json({ message: 'Error al enviar la cadena', error: error.message });
-    });
+        // Preparar los datos para el envío POST
+        const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
+        const data = new URLSearchParams();
+        data.append('recibo', cadena);
 
+        try {
+            // Realizar la solicitud POST a la URL con datos de formulario
+            const response = await axios.post(url, data, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
 
+            console.log('Respuesta del servidor:', response.data);
+            res.status(200).json({ message: 'Cadena enviada con éxito', cadena });
+        } catch (error) {
+            console.error('Error al enviar la cadena:', error);
+            res.status(500).json({ message: 'Error al enviar la cadena', error: error.message });
+        }
     } catch (error) {
         console.error('Error al actualizar el estatus del subproceso:', error);
         res.status(500).json({ message: 'Error al actualizar el estatus del subproceso', error: error.message });
     }
 });
-
 
 export default router;
