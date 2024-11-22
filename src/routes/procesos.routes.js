@@ -15,56 +15,61 @@ router.get('/processes', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM procesos');
         if (rows.length === 0) {
-            return res.status(204).json({ message: 'No hay procesos disponibles' });  // 204 No Content
+            return res.status(204).json({ message: 'No hay procesos disponibles' }); // 204 No Content
         }
 
-        // Seleccionar el primer proceso (en lugar de devolver un array)
-        const proceso = {
-            ...rows[0],  // Solo obtenemos el primer proceso
-            calibrado_patron: formatDate(rows[0].calibrado_patron),
-            prox_calibracion_patron: formatDate(rows[0].prox_calibracion_patron),
-            fecha_verificacion: formatDate(rows[0].fecha_verificacion),
-            proxima_verificacion: formatDate(rows[0].proxima_verificacion)
-        };
+        // Formatear las fechas de todos los procesos y devolver el array completo
+        const procesos = rows.map(proceso => ({
+            ...proceso,
+            calibrado_patron: formatDate(proceso.calibrado_patron),
+            prox_calibracion_patron: formatDate(proceso.prox_calibracion_patron),
+            fecha_verificacion: formatDate(proceso.fecha_verificacion),
+            proxima_verificacion: formatDate(proceso.proxima_verificacion),
+        }));
 
-        res.json(proceso);  // Devuelve solo el primer proceso como un objeto
+        res.json(procesos); // Devolver todos los procesos
     } catch (error) {
         console.error('Error al obtener los procesos:', error);
-        res.status(500).json({ message: 'Error al obtener los procesos' });
+        res.status(500).json({ message: 'Error al obtener los procesos', error: error.message });
     }
 });
 
 // Obtener un proceso específico por ID
 router.get('/processes/:id', async (req, res) => {
     const { id } = req.params;
+
+    // Validar que el ID sea numérico
     if (isNaN(id)) {
         return res.status(400).json({ message: 'ID no válido' });
     }
+
     try {
         const [rows] = await pool.query('SELECT * FROM procesos WHERE id = ?', [id]);
         if (rows.length === 0) {
             return res.status(404).json({ message: 'Proceso no encontrado' });
         }
 
-        // Formatear fechas del proceso
+        // Formatear las fechas del proceso específico
         const proceso = {
             ...rows[0],
             calibrado_patron: formatDate(rows[0].calibrado_patron),
             prox_calibracion_patron: formatDate(rows[0].prox_calibracion_patron),
             fecha_verificacion: formatDate(rows[0].fecha_verificacion),
-            proxima_verificacion: formatDate(rows[0].proxima_verificacion)
+            proxima_verificacion: formatDate(rows[0].proxima_verificacion),
         };
 
-        res.json(proceso);  // Devuelve un objeto
+        res.json(proceso); // Devolver el proceso
     } catch (error) {
         console.error('Error al obtener el proceso por ID:', error);
-        res.status(500).json({ message: 'Error al obtener el proceso' });
+        res.status(500).json({ message: 'Error al obtener el proceso', error: error.message });
     }
 });
 
 // Crear un nuevo proceso
 router.post('/processes', async (req, res) => {
     const { 
+        nombre,
+        descripcion,
         estandar, 
         marca, 
         modelo, 
@@ -79,7 +84,7 @@ router.post('/processes', async (req, res) => {
 
     // Validar campos obligatorios
     if (
-        !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion ||
+        !nombre || !descripcion || !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion ||
         !calibrado_patron || !prox_calibracion_patron || !fecha_verificacion || !proxima_verificacion
     ) {
         return res.status(400).json({ message: 'Favor de llenar todos los campos obligatorios' });
@@ -87,10 +92,10 @@ router.post('/processes', async (req, res) => {
 
     try {
         const [result] = await pool.query(
-            'INSERT INTO procesos (estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-            [estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion]
+            'INSERT INTO procesos (nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+            [nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion]
         );
-        res.json({ id: result.insertId, estandar });
+        res.json({ id: result.insertId, nombre });
     } catch (error) {
         console.error('Error al crear proceso:', error);
         res.status(500).json({ message: 'Error al crear el proceso' });
@@ -101,6 +106,8 @@ router.post('/processes', async (req, res) => {
 router.put('/processes/:id', async (req, res) => {
     const { id } = req.params;
     const { 
+        nombre,
+        descripcion,
         estandar, 
         marca, 
         modelo, 
@@ -115,7 +122,7 @@ router.put('/processes/:id', async (req, res) => {
 
     // Validar campos obligatorios
     if (
-        !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion ||
+        !nombre || !descripcion || !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion ||
         !calibrado_patron || !prox_calibracion_patron || !fecha_verificacion || !proxima_verificacion
     ) {
         return res.status(400).json({ message: 'Favor de llenar todos los campos obligatorios' });
@@ -123,8 +130,8 @@ router.put('/processes/:id', async (req, res) => {
 
     try {
         const result = await pool.query(
-            'UPDATE procesos SET estandar = ?, marca = ?, modelo = ?, serie = ?, resolucion = ?, intervalo_indicacion = ?, calibrado_patron = ?, prox_calibracion_patron = ?, fecha_verificacion = ?, proxima_verificacion = ? WHERE id = ?', 
-            [estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion, id]
+            'UPDATE procesos SET nombre = ?, descripcion = ?, estandar = ?, marca = ?, modelo = ?, serie = ?, resolucion = ?, intervalo_indicacion = ?, calibrado_patron = ?, prox_calibracion_patron = ?, fecha_verificacion = ?, proxima_verificacion = ? WHERE id = ?', 
+            [nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion, id]
         );
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Proceso no encontrado' });

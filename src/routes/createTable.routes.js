@@ -4,6 +4,8 @@ import axios from 'axios'; // Importar axios para hacer la solicitud POST
 
 const router = Router();
 
+import axios from 'axios';
+
 router.get('/crea-cadena', async (req, res) => {
     try {
         // Obtener todos los datos de procesos, subprocesos y sensores
@@ -16,20 +18,19 @@ router.get('/crea-cadena', async (req, res) => {
 
         // Agregar procesos a la cadena
         procesos.forEach(proceso => {
-            cadena += `${proceso.id},${proceso.nombre || ''},${proceso.descripcion || ''},${proceso.estandar || ''},${proceso.marca || ''},${proceso.modelo || ''},${proceso.serie || ''},${proceso.resolucion || ''},${proceso.intervalo_indicacion || ''},${proceso.calibrado_patron || ''},${proceso.prox_calibracion_patron || ''},${proceso.fecha_verificacion || ''},${proceso.proxima_verificacion || ''},${proceso.temp_inicial || ''},${proceso.temp_final || ''},${proceso.humedad_relativa_inicial || ''},${proceso.humedad_relativa_final || ''},${proceso.presion_atmosferica || ''},${proceso.numero_informe || ''},`;
+            cadena += `${proceso.id || ''},${proceso.nombre || ''},${proceso.descripcion || ''},${proceso.estandar || ''},${proceso.marca || ''},${proceso.modelo || ''},${proceso.serie || ''},${proceso.resolucion || ''},${proceso.intervalo_indicacion || ''},${proceso.calibrado_patron || ''},${proceso.prox_calibracion_patron || ''},${proceso.fecha_verificacion || ''},${proceso.proxima_verificacion || ''},`;
         });
 
-        // Agregar subprocesos a la cadena con $ al principio del id
+        // Agregar subprocesos a la cadena con "$" al principio de cada subproceso
         subprocesos.forEach(sub => {
-            cadena += `$${sub.id_subproceso},${sub.nombre || ''},${sub.descripcion || ''},${sub.valor_referencia || ''},${sub.incertidumbre_patron || ''},${sub.estatus || ''},`;
+            cadena += `$${sub.id_subproceso || ''},${sub.nombre || ''},${sub.descripcion || ''},${sub.valor_referencia || ''},${sub.incertidumbre_patron || ''},${sub.estatus || ''},`;
         });
 
-        // Agregar sensores a la cadena
-    sensores.forEach((sensor, index) => {
-        const consecutivo = (index + 1).toString(); // Convertir a string
-        cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
-    });
-
+        // Agregar sensores a la cadena con "!" al principio de cada sensor
+        sensores.forEach((sensor, index) => {
+            const consecutivo = (index + 1).toString(); // Consecutivo como string
+            cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},${sensor.temp_inicial || ''},${sensor.temp_final || ''},${sensor.humedad_relativa_inicial || ''},${sensor.humedad_relativa_final || ''},${sensor.presion_atmosferica || ''},${sensor.numero_informe || ''},`;
+        });
 
         // Preparar los datos para el envío POST
         const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
@@ -55,6 +56,7 @@ router.get('/crea-cadena', async (req, res) => {
         res.status(500).json({ message: 'Error al crear y enviar la cadena', error: error.message });
     }
 });
+
 
 router.get('/sensoresFaltantes', async (req, res) => {
     try {

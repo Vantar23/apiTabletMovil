@@ -10,7 +10,7 @@ router.put('/estatus/:id', async (req, res) => {
 
     try {
         // Actualizar el estatus del subproceso
-        const [result] = await pool.query('UPDATE subprocesos SET estatus = ? WHERE id = ?', [estatus, id]);
+        const [result] = await pool.query('UPDATE subprocesos SET estatus = ? WHERE id_subproceso = ?', [estatus, id]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Subproceso no encontrado' });
         }
@@ -25,18 +25,18 @@ router.put('/estatus/:id', async (req, res) => {
 
         // Agregar procesos a la cadena
         procesos.forEach(proceso => {
-            cadena += `${proceso.id},${proceso.nombre || ''},${proceso.descripcion || ''},${proceso.estandar || ''},${proceso.marca || ''},${proceso.modelo || ''},${proceso.serie || ''},${proceso.resolucion || ''},${proceso.intervalo_indicacion || ''},${proceso.calibrado_patron || ''},${proceso.prox_calibracion_patron || ''},${proceso.fecha_verificacion || ''},${proceso.proxima_verificacion || ''},${proceso.temp_inicial || ''},${proceso.temp_final || ''},${proceso.humedad_relativa_inicial || ''},${proceso.humedad_relativa_final || ''},${proceso.presion_atmosferica || ''},${proceso.numero_informe || ''},`;
+            cadena += `${proceso.id || ''},${proceso.nombre || ''},${proceso.descripcion || ''},${proceso.estandar || ''},${proceso.marca || ''},${proceso.modelo || ''},${proceso.serie || ''},${proceso.resolucion || ''},${proceso.intervalo_indicacion || ''},${proceso.calibrado_patron || ''},${proceso.prox_calibracion_patron || ''},${proceso.fecha_verificacion || ''},${proceso.proxima_verificacion || ''},`;
         });
 
-        // Agregar subprocesos a la cadena con $ al principio del id
+        // Agregar subprocesos a la cadena con `$` al principio del id_subproceso
         subprocesos.forEach(sub => {
-            cadena += `$${sub.id_subproceso},${sub.nombre || ''},${sub.descripcion || ''},${sub.valor_referencia || ''},${sub.incertidumbre_patron || ''},${sub.estatus || ''},`;
+            cadena += `$${sub.id_subproceso || ''},${sub.nombre || ''},${sub.descripcion || ''},${sub.valor_referencia || ''},${sub.incertidumbre_patron || ''},${sub.estatus || ''},`;
         });
 
-        // Agregar sensores a la cadena
+        // Agregar sensores a la cadena con `!` al principio del consecutivo
         sensores.forEach((sensor, index) => {
-            const consecutivo = index + 1;
-            cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},`;
+            const consecutivo = index + 1; // Consecutivo del sensor
+            cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},${sensor.temp_inicial || ''},${sensor.temp_final || ''},${sensor.humedad_relativa_inicial || ''},${sensor.humedad_relativa_final || ''},${sensor.presion_atmosferica || ''},${sensor.numero_informe || ''},`;
         });
 
         // Preparar los datos para el envío POST
@@ -63,5 +63,6 @@ router.put('/estatus/:id', async (req, res) => {
         res.status(500).json({ message: 'Error al actualizar el estatus del subproceso', error: error.message });
     }
 });
+
 
 export default router;
