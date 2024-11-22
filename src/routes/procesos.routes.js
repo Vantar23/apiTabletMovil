@@ -64,19 +64,33 @@ router.get('/processes/:id', async (req, res) => {
 
 // Crear un nuevo proceso
 router.post('/processes', async (req, res) => {
-    const { nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
+    const { 
+        estandar, 
+        marca, 
+        modelo, 
+        serie, 
+        resolucion, 
+        intervalo_indicacion, 
+        calibrado_patron, 
+        prox_calibracion_patron, 
+        fecha_verificacion, 
+        proxima_verificacion 
+    } = req.body;
 
-    // Verificación de campos faltantes
-    if (!nombre || !descripcion || !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !calibrado_patron || !prox_calibracion_patron || !fecha_verificacion || !proxima_verificacion || !temp_inicial || !temp_final || !humedad_relativa_inicial || !humedad_relativa_final || !presion_atmosferica || !numero_informe) {
+    // Validar campos obligatorios
+    if (
+        !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion ||
+        !calibrado_patron || !prox_calibracion_patron || !fecha_verificacion || !proxima_verificacion
+    ) {
         return res.status(400).json({ message: 'Favor de llenar todos los campos obligatorios' });
     }
 
     try {
         const [result] = await pool.query(
-            'INSERT INTO procesos (nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-            [nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe]
+            'INSERT INTO procesos (estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+            [estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion]
         );
-        res.json({ id: result.insertId, nombre: nombre });
+        res.json({ id: result.insertId, estandar });
     } catch (error) {
         console.error('Error al crear proceso:', error);
         res.status(500).json({ message: 'Error al crear el proceso' });
@@ -86,17 +100,31 @@ router.post('/processes', async (req, res) => {
 // Editar un proceso por ID
 router.put('/processes/:id', async (req, res) => {
     const { id } = req.params;
-    const { nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
+    const { 
+        estandar, 
+        marca, 
+        modelo, 
+        serie, 
+        resolucion, 
+        intervalo_indicacion, 
+        calibrado_patron, 
+        prox_calibracion_patron, 
+        fecha_verificacion, 
+        proxima_verificacion 
+    } = req.body;
 
-    // Verificación de campos faltantes
-    if (!nombre || !descripcion || !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !calibrado_patron || !prox_calibracion_patron || !fecha_verificacion || !proxima_verificacion || !temp_inicial || !temp_final || !humedad_relativa_inicial || !humedad_relativa_final || !presion_atmosferica || !numero_informe) {
+    // Validar campos obligatorios
+    if (
+        !estandar || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion ||
+        !calibrado_patron || !prox_calibracion_patron || !fecha_verificacion || !proxima_verificacion
+    ) {
         return res.status(400).json({ message: 'Favor de llenar todos los campos obligatorios' });
     }
 
     try {
         const result = await pool.query(
-            'UPDATE procesos SET nombre = ?, descripcion = ?, estandar = ?, marca = ?, modelo = ?, serie = ?, resolucion = ?, intervalo_indicacion = ?, calibrado_patron = ?, prox_calibracion_patron = ?, fecha_verificacion = ?, proxima_verificacion = ?, temp_inicial = ?, temp_final = ?, humedad_relativa_inicial = ?, humedad_relativa_final = ?, presion_atmosferica = ?, numero_informe = ? WHERE id = ?', 
-            [nombre, descripcion, estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id]
+            'UPDATE procesos SET estandar = ?, marca = ?, modelo = ?, serie = ?, resolucion = ?, intervalo_indicacion = ?, calibrado_patron = ?, prox_calibracion_patron = ?, fecha_verificacion = ?, proxima_verificacion = ? WHERE id = ?', 
+            [estandar, marca, modelo, serie, resolucion, intervalo_indicacion, calibrado_patron, prox_calibracion_patron, fecha_verificacion, proxima_verificacion, id]
         );
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Proceso no encontrado' });

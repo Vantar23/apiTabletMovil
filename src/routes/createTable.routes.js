@@ -56,6 +56,49 @@ router.get('/crea-cadena', async (req, res) => {
     }
 });
 
+router.get('/sensoresFaltantes', async (req, res) => {
+    try {
+        // Query para agregar los campos faltantes
+        await pool.query(`
+            ALTER TABLE sensores
+            ADD COLUMN serie VARCHAR(255) NOT NULL,
+            ADD COLUMN temp_inicial FLOAT NOT NULL,
+            ADD COLUMN temp_final FLOAT NOT NULL,
+            ADD COLUMN humedad_relativa_inicial FLOAT NOT NULL,
+            ADD COLUMN humedad_relativa_final FLOAT NOT NULL,
+            ADD COLUMN presion_atmosferica FLOAT NOT NULL,
+            ADD COLUMN numero_informe VARCHAR(255) NOT NULL;
+        `);
+
+        res.json({ message: 'Campos faltantes añadidos a la tabla sensores con éxito.' });
+    } catch (error) {
+        console.error('Error al agregar los campos faltantes a la tabla sensores:', error);
+        res.status(500).json({ message: 'Error al agregar los campos faltantes a la tabla sensores', error });
+    }
+});
+
+router.get('/borrarProcesosCampos', async (req, res) => {
+    try {
+        // Query para eliminar las columnas sobrantes
+        await pool.query(`
+            ALTER TABLE procesos
+            DROP COLUMN nombre,
+            DROP COLUMN descripcion,
+            DROP COLUMN temp_inicial,
+            DROP COLUMN temp_final,
+            DROP COLUMN humedad_relativa_inicial,
+            DROP COLUMN humedad_relativa_final,
+            DROP COLUMN presion_atmosferica,
+            DROP COLUMN numero_informe;
+        `);
+
+        res.json({ message: 'Campos sobrantes eliminados de la tabla procesos.' });
+    } catch (error) {
+        console.error('Error al borrar los campos sobrantes:', error);
+        res.status(500).json({ message: 'Error al borrar los campos sobrantes', error });
+    }
+});
+
 
 // Limpiar las tablas procesos, subprocesos y sensores después de crear la cadena
 router.get('/clean-database', async (req, res) => {
