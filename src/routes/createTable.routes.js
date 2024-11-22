@@ -4,7 +4,6 @@ import axios from 'axios'; // Importar axios para hacer la solicitud POST
 
 const router = Router();
 
-import axios from 'axios';
 
 router.get('/crea-cadena', async (req, res) => {
     try {
