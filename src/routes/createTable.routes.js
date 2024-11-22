@@ -77,25 +77,19 @@ router.get('/sensoresFaltantes', async (req, res) => {
     }
 });
 
-router.get('/borrarProcesosCampos', async (req, res) => {
+router.get('/agregarProcesosCampos', async (req, res) => {
     try {
-        // Query para eliminar las columnas sobrantes
+        // Query para agregar las columnas necesarias
         await pool.query(`
             ALTER TABLE procesos
-            DROP COLUMN nombre,
-            DROP COLUMN descripcion,
-            DROP COLUMN temp_inicial,
-            DROP COLUMN temp_final,
-            DROP COLUMN humedad_relativa_inicial,
-            DROP COLUMN humedad_relativa_final,
-            DROP COLUMN presion_atmosferica,
-            DROP COLUMN numero_informe;
+            ADD COLUMN nombre VARCHAR(255) NOT NULL,
+            ADD COLUMN descripcion TEXT NOT NULL;
         `);
 
-        res.json({ message: 'Campos sobrantes eliminados de la tabla procesos.' });
+        res.json({ message: 'Campos nombre y descripcion añadidos a la tabla procesos.' });
     } catch (error) {
-        console.error('Error al borrar los campos sobrantes:', error);
-        res.status(500).json({ message: 'Error al borrar los campos sobrantes', error });
+        console.error('Error al agregar los campos nombre y descripcion:', error);
+        res.status(500).json({ message: 'Error al agregar los campos nombre y descripcion', error });
     }
 });
 
