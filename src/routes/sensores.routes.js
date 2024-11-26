@@ -80,15 +80,13 @@ router.get('/sensores/:id', async (req, res) => {
 
 // Crear un nuevo sensor
 router.post('/sensores', async (req, res) => {
-    const sensores = Array.isArray(req.body) ? req.body : [req.body];
-
     try {
         // Verificar la cantidad actual de sensores en la tabla
         const [rows] = await pool.query('SELECT COUNT(*) as cantidad FROM sensores');
         const cantidadActual = rows[0].cantidad;
 
         // Validar que no se exceda el límite de 12 sensores
-        if (cantidadActual + sensores.length > 12) {
+        if (cantidadActual >= 12) {
             return res.status(400).json({ message: 'Se ha excedido el límite de 12 sensores.' });
         }
 
@@ -103,9 +101,54 @@ router.post('/sensores', async (req, res) => {
         // Obtener el ID del proceso
         const id_proceso = procesos[0].id;
 
-        // Procesar cada sensor del cuerpo de la solicitud
-        for (const [index, sensor] of sensores.entries()) {
-            const {
+        // Extraer datos del sensor desde el cuerpo de la solicitud
+        const {
+            Instrumento,
+            Marca,
+            Modelo,
+            MacAdress,
+            Serie,
+            Resolución,
+            Intervalo_de_indicación,
+            EMP,
+            Temperatura_inicial,
+            Temperatura_final,
+            Humedad_relativa_inicial,
+            Humedad_relativa_final,
+            Presión_atmosférica,
+            Numero_de_Informe
+        } = req.body;
+
+        // Crear un array con los campos faltantes
+        const camposFaltantes = [];
+
+        if (!Instrumento) camposFaltantes.push('Instrumento');
+        if (!Marca) camposFaltantes.push('Marca');
+        if (!Modelo) camposFaltantes.push('Modelo');
+        if (!MacAdress) camposFaltantes.push('MacAdress');
+        if (!Serie) camposFaltantes.push('Serie');
+        if (!Resolución) camposFaltantes.push('Resolución');
+        if (!Intervalo_de_indicación) camposFaltantes.push('Intervalo_de_indicación');
+        if (!EMP) camposFaltantes.push('EMP');
+        if (!Temperatura_inicial) camposFaltantes.push('Temperatura_inicial');
+        if (!Temperatura_final) camposFaltantes.push('Temperatura_final');
+        if (!Humedad_relativa_inicial) camposFaltantes.push('Humedad_relativa_inicial');
+        if (!Humedad_relativa_final) camposFaltantes.push('Humedad_relativa_final');
+        if (!Presión_atmosférica) camposFaltantes.push('Presión_atmosférica');
+        if (!Numero_de_Informe) camposFaltantes.push('Numero_de_Informe');
+
+        // Si hay campos faltantes, responder con un error específico
+        if (camposFaltantes.length > 0) {
+            return res.status(400).json({ 
+                message: `El sensor tiene campos faltantes: ${camposFaltantes.join(', ')}` 
+            });
+        }
+
+        // Insertar los datos del sensor en la base de datos
+        await pool.query(
+            `INSERT INTO sensores (instrumento, marca, modelo, mac_address, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
                 Instrumento,
                 Marca,
                 Modelo,
@@ -119,66 +162,20 @@ router.post('/sensores', async (req, res) => {
                 Humedad_relativa_inicial,
                 Humedad_relativa_final,
                 Presión_atmosférica,
-                Numero_de_Informe
-            } = sensor;
-
-            // Crear un array con los campos faltantes
-            const camposFaltantes = [];
-
-            if (!Instrumento) camposFaltantes.push('Instrumento');
-            if (!Marca) camposFaltantes.push('Marca');
-            if (!Modelo) camposFaltantes.push('Modelo');
-            if (!MacAdress) camposFaltantes.push('MacAdress');
-            if (!Serie) camposFaltantes.push('Serie');
-            if (!Resolución) camposFaltantes.push('Resolución');
-            if (!Intervalo_de_indicación) camposFaltantes.push('Intervalo_de_indicación');
-            if (!EMP) camposFaltantes.push('EMP');
-            if (!Temperatura_inicial) camposFaltantes.push('Temperatura_inicial');
-            if (!Temperatura_final) camposFaltantes.push('Temperatura_final');
-            if (!Humedad_relativa_inicial) camposFaltantes.push('Humedad_relativa_inicial');
-            if (!Humedad_relativa_final) camposFaltantes.push('Humedad_relativa_final');
-            if (!Presión_atmosférica) camposFaltantes.push('Presión_atmosférica');
-            if (!Numero_de_Informe) camposFaltantes.push('Numero_de_Informe');
-
-            // Si hay campos faltantes, responder con un error específico
-            if (camposFaltantes.length > 0) {
-                return res.status(400).json({ 
-                    message: `El sensor en la posición ${index + 1} tiene campos faltantes: ${camposFaltantes.join(', ')}` 
-                });
-            }
-
-            // Insertar los datos del sensor en la base de datos
-            await pool.query(
-                `INSERT INTO sensores (instrumento, marca, modelo, mac_address, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    Instrumento,
-                    Marca,
-                    Modelo,
-                    MacAdress,
-                    Serie,
-                    Resolución,
-                    Intervalo_de_indicación,
-                    EMP,
-                    Temperatura_inicial,
-                    Temperatura_final,
-                    Humedad_relativa_inicial,
-                    Humedad_relativa_final,
-                    Presión_atmosférica,
-                    Numero_de_Informe,
-                    id_proceso
-                ]
-            );
-        }
+                Numero_de_Informe,
+                id_proceso
+            ]
+        );
 
         // Responder con éxito
-        res.json({ message: 'Sensores creados con éxito' });
+        res.json({ message: 'Sensor creado con éxito' });
     } catch (error) {
         // Manejo de errores
-        console.error('Error al crear los sensores:', error);
-        res.status(500).json({ message: 'Error al crear los sensores', error });
+        console.error('Error al crear el sensor:', error);
+        res.status(500).json({ message: 'Error al crear el sensor', error });
     }
 });
+
 
 
 
