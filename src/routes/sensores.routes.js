@@ -98,7 +98,22 @@ router.post('/sensores', async (req, res) => {
         for (const sensor of sensores) {
             const { mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = sensor;
 
-            if (!mac_address || !instrumento || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !emp || !temp_inicial || !temp_final || !humedad_relativa_inicial || !humedad_relativa_final || !presion_atmosferica || !numero_informe) {
+            if (
+                !Instrumento || 
+                !MacAdress || 
+                !Marca || 
+                !Modelo || 
+                !Resolución || 
+                !Intervalo_de_indicación || 
+                !EMP || 
+                !Temperatura_inicial || 
+                !Temperatura_final || 
+                !Humedad_relativa_inicial || 
+                !Humedad_relativa_final || 
+                !Presión_atmosférica || 
+                !Numero_de_Informe || 
+                !Serie
+            ) {
                 return res.status(400).json({ message: 'Todos los campos son obligatorios para cada sensor.' });
             }
 
