@@ -82,7 +82,7 @@ router.get('/eliminarCampoNombreSensor', async (req, res) => {
     try {
         // Query para eliminar la columna nombre_sensor de la tabla procesos
         await pool.query(`
-            ALTER TABLE procesos
+            ALTER TABLE sensores
             DROP COLUMN nombre_sensor;
         `);
 
