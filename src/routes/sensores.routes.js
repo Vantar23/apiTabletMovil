@@ -101,15 +101,15 @@ router.post('/sensores', async (req, res) => {
         // Obtener el ID del proceso
         const id_proceso = procesos[0].id;
 
-        // Extraer datos del sensor desde el cuerpo de la solicitud (en minúsculas)
+        // Extraer datos del sensor desde el cuerpo de la solicitud
         const {
             instrumento,
             marca,
             modelo,
             macadress,
             serie,
-            resolución,
-            intervalo_de_indicación,
+            resolucion,
+            intervalo_de_indicacion,
             emp,
             temperatura_inicial,
             temperatura_final,
@@ -127,14 +127,14 @@ router.post('/sensores', async (req, res) => {
         if (!modelo) camposFaltantes.push('modelo');
         if (!macadress) camposFaltantes.push('macadress');
         if (!serie) camposFaltantes.push('serie');
-        if (!resolución) camposFaltantes.push('resolución');
-        if (!intervalo_de_indicación) camposFaltantes.push('intervalo_de_indicación');
+        if (!resolucion) camposFaltantes.push('resolucion');
+        if (!intervalo_de_indicacion) camposFaltantes.push('intervalo_de_indicacion');
         if (!emp) camposFaltantes.push('emp');
         if (!temperatura_inicial) camposFaltantes.push('temperatura_inicial');
         if (!temperatura_final) camposFaltantes.push('temperatura_final');
         if (!humedad_relativa_inicial) camposFaltantes.push('humedad_relativa_inicial');
         if (!humedad_relativa_final) camposFaltantes.push('humedad_relativa_final');
-        if (!presión_atmosférica) camposFaltantes.push('presión_atmosférica');
+        if (!presion_atmosferica) camposFaltantes.push('presion_atmosferica');
         if (!numero_de_informe) camposFaltantes.push('numero_de_informe');
 
         // Si hay campos faltantes, responder con un error específico
@@ -154,14 +154,14 @@ router.post('/sensores', async (req, res) => {
                 modelo,
                 macadress,
                 serie,
-                resolución,
-                intervalo_de_indicación,
+                resolucion,
+                intervalo_de_indicacion,
                 emp,
                 temperatura_inicial,
                 temperatura_final,
                 humedad_relativa_inicial,
                 humedad_relativa_final,
-                presión_atmosférica,
+                presion_atmosferica,
                 numero_de_informe,
                 id_proceso
             ]
@@ -175,6 +175,7 @@ router.post('/sensores', async (req, res) => {
         res.status(500).json({ message: 'Error al crear el sensor', error });
     }
 });
+
 
 
 
