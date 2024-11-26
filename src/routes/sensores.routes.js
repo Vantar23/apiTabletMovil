@@ -101,41 +101,41 @@ router.post('/sensores', async (req, res) => {
         // Obtener el ID del proceso
         const id_proceso = procesos[0].id;
 
-        // Extraer datos del sensor desde el cuerpo de la solicitud
+        // Extraer datos del sensor desde el cuerpo de la solicitud (en minúsculas)
         const {
-            Instrumento,
-            Marca,
-            Modelo,
-            MacAdress,
-            Serie,
-            Resolución,
-            Intervalo_de_indicación,
-            EMP,
-            Temperatura_inicial,
-            Temperatura_final,
-            Humedad_relativa_inicial,
-            Humedad_relativa_final,
-            Presión_atmosférica,
-            Numero_de_Informe
+            instrumento,
+            marca,
+            modelo,
+            macadress,
+            serie,
+            resolución,
+            intervalo_de_indicación,
+            emp,
+            temperatura_inicial,
+            temperatura_final,
+            humedad_relativa_inicial,
+            humedad_relativa_final,
+            presión_atmosférica,
+            numero_de_informe
         } = req.body;
 
         // Crear un array con los campos faltantes
         const camposFaltantes = [];
 
-        if (!Instrumento) camposFaltantes.push('Instrumento');
-        if (!Marca) camposFaltantes.push('Marca');
-        if (!Modelo) camposFaltantes.push('Modelo');
-        if (!MacAdress) camposFaltantes.push('MacAdress');
-        if (!Serie) camposFaltantes.push('Serie');
-        if (!Resolución) camposFaltantes.push('Resolución');
-        if (!Intervalo_de_indicación) camposFaltantes.push('Intervalo_de_indicación');
-        if (!EMP) camposFaltantes.push('EMP');
-        if (!Temperatura_inicial) camposFaltantes.push('Temperatura_inicial');
-        if (!Temperatura_final) camposFaltantes.push('Temperatura_final');
-        if (!Humedad_relativa_inicial) camposFaltantes.push('Humedad_relativa_inicial');
-        if (!Humedad_relativa_final) camposFaltantes.push('Humedad_relativa_final');
-        if (!Presión_atmosférica) camposFaltantes.push('Presión_atmosférica');
-        if (!Numero_de_Informe) camposFaltantes.push('Numero_de_Informe');
+        if (!instrumento) camposFaltantes.push('instrumento');
+        if (!marca) camposFaltantes.push('marca');
+        if (!modelo) camposFaltantes.push('modelo');
+        if (!macadress) camposFaltantes.push('macadress');
+        if (!serie) camposFaltantes.push('serie');
+        if (!resolución) camposFaltantes.push('resolución');
+        if (!intervalo_de_indicación) camposFaltantes.push('intervalo_de_indicación');
+        if (!emp) camposFaltantes.push('emp');
+        if (!temperatura_inicial) camposFaltantes.push('temperatura_inicial');
+        if (!temperatura_final) camposFaltantes.push('temperatura_final');
+        if (!humedad_relativa_inicial) camposFaltantes.push('humedad_relativa_inicial');
+        if (!humedad_relativa_final) camposFaltantes.push('humedad_relativa_final');
+        if (!presión_atmosférica) camposFaltantes.push('presión_atmosférica');
+        if (!numero_de_informe) camposFaltantes.push('numero_de_informe');
 
         // Si hay campos faltantes, responder con un error específico
         if (camposFaltantes.length > 0) {
@@ -149,20 +149,20 @@ router.post('/sensores', async (req, res) => {
             `INSERT INTO sensores (instrumento, marca, modelo, mac_address, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-                Instrumento,
-                Marca,
-                Modelo,
-                MacAdress,
-                Serie,
-                Resolución,
-                Intervalo_de_indicación,
-                EMP,
-                Temperatura_inicial,
-                Temperatura_final,
-                Humedad_relativa_inicial,
-                Humedad_relativa_final,
-                Presión_atmosférica,
-                Numero_de_Informe,
+                instrumento,
+                marca,
+                modelo,
+                macadress,
+                serie,
+                resolución,
+                intervalo_de_indicación,
+                emp,
+                temperatura_inicial,
+                temperatura_final,
+                humedad_relativa_inicial,
+                humedad_relativa_final,
+                presión_atmosférica,
+                numero_de_informe,
                 id_proceso
             ]
         );
