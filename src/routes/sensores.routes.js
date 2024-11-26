@@ -183,6 +183,7 @@ router.post('/sensores', async (req, res) => {
 });
 
 // Editar un sensor por ID
+// Editar un sensor por ID
 router.put('/sensores/:id', async (req, res) => {
     const { id } = req.params;
 
@@ -205,33 +206,36 @@ router.put('/sensores/:id', async (req, res) => {
     } = req.body;
 
     // Validar que todos los campos estén presentes
-    if (
-        !instrumento || 
-        !marca || 
-        !modelo || 
-        !macadress || 
-        !serie || 
-        !resolucion || 
-        !intervalo_de_indicacion || 
-        !emp || 
-        !temperatura_inicial || 
-        !temperatura_final || 
-        !humedad_relativa_inicial || 
-        !humedad_relativa_final || 
-        !presion_atmosferica || 
-        !numero_de_informe
-    ) {
-        return res.status(400).json({ message: 'Todos los campos son obligatorios para actualizar el sensor.' });
+    const camposFaltantes = [];
+    if (!instrumento) camposFaltantes.push('instrumento');
+    if (!marca) camposFaltantes.push('marca');
+    if (!modelo) camposFaltantes.push('modelo');
+    if (!macadress) camposFaltantes.push('macadress');
+    if (!serie) camposFaltantes.push('serie');
+    if (!resolucion) camposFaltantes.push('resolucion');
+    if (!intervalo_de_indicacion) camposFaltantes.push('intervalo_de_indicacion');
+    if (!emp) camposFaltantes.push('emp');
+    if (!temperatura_inicial) camposFaltantes.push('temperatura_inicial');
+    if (!temperatura_final) camposFaltantes.push('temperatura_final');
+    if (!humedad_relativa_inicial) camposFaltantes.push('humedad_relativa_inicial');
+    if (!humedad_relativa_final) camposFaltantes.push('humedad_relativa_final');
+    if (!presion_atmosferica) camposFaltantes.push('presion_atmosferica');
+    if (!numero_de_informe) camposFaltantes.push('numero_de_informe');
+
+    if (camposFaltantes.length > 0) {
+        return res.status(400).json({ 
+            message: `El sensor tiene campos faltantes: ${camposFaltantes.join(', ')}` 
+        });
     }
 
     try {
         // Obtener el único proceso de la tabla 'procesos'
         const [procesos] = await pool.query('SELECT id FROM procesos');
-        const id_proceso = procesos.length === 1 ? procesos[0].id : null;
-
-        if (!id_proceso) {
+        if (procesos.length !== 1) {
             return res.status(500).json({ message: 'Error: Debe haber exactamente un proceso en la tabla procesos.' });
         }
+
+        const id_proceso = procesos[0].id;
 
         // Actualizar el sensor en la base de datos
         const [result] = await pool.query(
@@ -267,6 +271,7 @@ router.put('/sensores/:id', async (req, res) => {
                 humedad_relativa_final,
                 presion_atmosferica,
                 numero_de_informe,
+                id_proceso,
                 id
             ]
         );
@@ -279,9 +284,10 @@ router.put('/sensores/:id', async (req, res) => {
         res.json({ message: 'Sensor actualizado con éxito' });
     } catch (error) {
         console.error('Error al actualizar el sensor:', error);
-        res.status(500).json({ message: 'Error al actualizar el sensor' });
+        res.status(500).json({ message: 'Error al actualizar el sensor', error });
     }
 });
+
 
 
 
