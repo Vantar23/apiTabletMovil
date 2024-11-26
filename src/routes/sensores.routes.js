@@ -180,12 +180,12 @@ router.post('/sensores', async (req, res) => {
 router.put('/sensores/:id', async (req, res) => {
     const { id } = req.params;
 
-    // Extraer los datos del cuerpo de la solicitud en minúsculas
+    // Extraer los datos del cuerpo de la solicitud en minúsculas y en el orden correcto
     const {
-        macadress,
         instrumento,
         marca,
         modelo,
+        macadress,
         serie,
         resolucion,
         intervalo_de_indicacion,
@@ -200,10 +200,10 @@ router.put('/sensores/:id', async (req, res) => {
 
     // Validar que todos los campos estén presentes
     if (
-        !macadress || 
         !instrumento || 
         !marca || 
         !modelo || 
+        !macadress || 
         !serie || 
         !resolucion || 
         !intervalo_de_indicacion || 
@@ -230,10 +230,10 @@ router.put('/sensores/:id', async (req, res) => {
         // Actualizar el sensor en la base de datos
         const [result] = await pool.query(
             `UPDATE sensores 
-             SET mac_address = ?, 
-                 instrumento = ?, 
+             SET instrumento = ?, 
                  marca = ?, 
                  modelo = ?, 
+                 mac_address = ?, 
                  serie = ?, 
                  resolucion = ?, 
                  intervalo_indicacion = ?, 
@@ -247,10 +247,10 @@ router.put('/sensores/:id', async (req, res) => {
                  id_proceso = ? 
              WHERE id = ?`, 
             [
-                macadress,
                 instrumento,
                 marca,
                 modelo,
+                macadress,
                 serie,
                 resolucion,
                 intervalo_de_indicacion,
@@ -276,6 +276,7 @@ router.put('/sensores/:id', async (req, res) => {
         res.status(500).json({ message: 'Error al actualizar el sensor' });
     }
 });
+
 
 
 // Eliminar un sensor por ID
