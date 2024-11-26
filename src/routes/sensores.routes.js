@@ -115,7 +115,7 @@ router.post('/sensores', async (req, res) => {
             temperatura_final,
             humedad_relativa_inicial,
             humedad_relativa_final,
-            presión_atmosférica,
+            presion_atmosferica,
             numero_de_informe
         } = req.body;
 
