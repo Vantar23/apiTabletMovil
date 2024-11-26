@@ -4,6 +4,40 @@ import axios from 'axios'; // Importar axios para hacer la solicitud POST
 
 const router = Router();
 
+router.get('/muestra-cadena', async (req, res) => {
+    try {
+        // Obtener todos los datos de procesos, subprocesos y sensores
+        const [procesos] = await pool.query('SELECT * FROM procesos');
+        const [subprocesos] = await pool.query('SELECT * FROM subprocesos');
+        const [sensores] = await pool.query('SELECT * FROM sensores');
+
+        // Construir la cadena de envío
+        let cadena = '';
+
+        // Agregar procesos a la cadena
+        procesos.forEach(proceso => {
+            cadena += `${proceso.id || ''},${proceso.nombre || ''},${proceso.descripcion || ''},${proceso.estandar || ''},${proceso.marca || ''},${proceso.modelo || ''},${proceso.serie || ''},${proceso.resolucion || ''},${proceso.intervalo_indicacion || ''},${proceso.calibrado_patron || ''},${proceso.prox_calibracion_patron || ''},${proceso.fecha_verificacion || ''},${proceso.proxima_verificacion || ''},`;
+        });
+
+        // Agregar subprocesos a la cadena con "$" al principio de cada subproceso
+        subprocesos.forEach(sub => {
+            cadena += `$${sub.id_subproceso || ''},${sub.nombre || ''},${sub.descripcion || ''},${sub.valor_referencia || ''},${sub.incertidumbre_patron || ''},${sub.estatus || ''},`;
+        });
+
+        // Agregar sensores a la cadena con "!" al principio de cada sensor
+        sensores.forEach((sensor, index) => {
+            const consecutivo = (index + 1).toString(); // Consecutivo como string
+            cadena += `!${consecutivo},${sensor.instrumento || ''},${sensor.mac_address || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},${sensor.temp_inicial || ''},${sensor.temp_final || ''},${sensor.humedad_relativa_inicial || ''},${sensor.humedad_relativa_final || ''},${sensor.presion_atmosferica || ''},${sensor.numero_informe || ''},`;
+        });
+
+        // Mostrar la cadena generada en la respuesta
+        res.status(200).json({ message: 'Cadena generada con éxito', cadena });
+    } catch (error) {
+        console.error('Error al crear la cadena:', error);
+        res.status(500).json({ message: 'Error al crear la cadena', error: error.message });
+    }
+});
+
 
 router.get('/crea-cadena', async (req, res) => {
     try {
@@ -28,7 +62,7 @@ router.get('/crea-cadena', async (req, res) => {
         // Agregar sensores a la cadena con "!" al principio de cada sensor
         sensores.forEach((sensor, index) => {
             const consecutivo = (index + 1).toString(); // Consecutivo como string
-            cadena += `!${consecutivo},${sensor.nombre_sensor || ''},${sensor.mac_address || ''},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},${sensor.temp_inicial || ''},${sensor.temp_final || ''},${sensor.humedad_relativa_inicial || ''},${sensor.humedad_relativa_final || ''},${sensor.presion_atmosferica || ''},${sensor.numero_informe || ''},`;
+            cadena += `!${consecutivo},${sensor.instrumento || ''},${sensor.mac_address || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},${sensor.temp_inicial || ''},${sensor.temp_final || ''},${sensor.humedad_relativa_inicial || ''},${sensor.humedad_relativa_final || ''},${sensor.presion_atmosferica || ''},${sensor.numero_informe || ''},`;
         });
 
         // Preparar los datos para el envío POST
