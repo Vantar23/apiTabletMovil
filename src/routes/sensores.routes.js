@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { pool } from '../db.js';  // Asegúrate de que la conexión a la base de datos esté correctamente exportada
+import { pool } from '../db.js'; // Asegúrate de que la conexión a la base de datos esté correctamente exportada
 
 const router = Router();
 
@@ -41,15 +41,12 @@ router.get('/sensores/macaddresses', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT mac_address FROM sensores');
 
-        // Verificar si se encontraron MAC Addresses
         if (rows.length === 0) {
             return res.status(404).json({ message: 'No se encontraron sensores con MAC Addresses' });
         }
 
-        // Extraer las MAC Addresses y convertirlas a minúsculas
         const macAddresses = rows.map(row => row.mac_address.toLowerCase()).join(', ');
 
-        // Devolver la cadena con las MAC Addresses en minúsculas
         res.send(macAddresses);
     } catch (error) {
         console.error('Error al obtener las MAC Addresses:', error.message);
@@ -69,7 +66,6 @@ router.get('/sensores/:id', async (req, res) => {
             return res.status(404).json({ message: 'Sensor no encontrado' });
         }
 
-        // Decodificar la MAC address del sensor
         const sensor = {
             ...rows[0],
             mac_address: decodeMacAddress(rows[0].mac_address)
@@ -82,20 +78,17 @@ router.get('/sensores/:id', async (req, res) => {
     }
 });
 
-
 // Crear un nuevo sensor
 router.post('/sensores', async (req, res) => {
-    const sensores = Array.isArray(req.body) ? req.body : [req.body]; // Convertir a arreglo si es un objeto único
+    const sensores = Array.isArray(req.body) ? req.body : [req.body];
 
     try {
-        // Validar si ya hay 12 sensores
         const [rows] = await pool.query('SELECT COUNT(*) as cantidad FROM sensores');
         const cantidadActual = rows[0].cantidad;
         if (cantidadActual + sensores.length > 12) {
             return res.status(400).json({ message: 'Se ha excedido el límite de 12 sensores.' });
         }
 
-        // Obtener el único ID de la tabla procesos
         const [procesos] = await pool.query('SELECT id FROM procesos');
         if (procesos.length !== 1) {
             return res.status(500).json({ message: 'Error: Debe haber exactamente un proceso en la tabla procesos.' });
@@ -103,19 +96,16 @@ router.post('/sensores', async (req, res) => {
         const id_proceso = procesos[0].id;
 
         for (const sensor of sensores) {
-            // Desestructurar y validar cada sensor
-            const { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = sensor;
+            const { mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = sensor;
 
-            // Validar campos obligatorios
-            if (!nombre_sensor || !mac_address || !instrumento || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !emp || !temp_inicial || !temp_final || !humedad_relativa_inicial || !humedad_relativa_final || !presion_atmosferica || !numero_informe) {
+            if (!mac_address || !instrumento || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !emp || !temp_inicial || !temp_final || !humedad_relativa_inicial || !humedad_relativa_final || !presion_atmosferica || !numero_informe) {
                 return res.status(400).json({ message: 'Todos los campos son obligatorios para cada sensor.' });
             }
 
-            // Insertar el sensor
             await pool.query(
-                `INSERT INTO sensores (nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso]
+                `INSERT INTO sensores (mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso]
             );
         }
 
@@ -129,24 +119,19 @@ router.post('/sensores', async (req, res) => {
 // Editar un sensor por ID
 router.put('/sensores/:id', async (req, res) => {
     const { id } = req.params;
-    const { nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
+    const { mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
 
-    // Validar campos obligatorios
-    if (!nombre_sensor || !mac_address || !instrumento || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !emp || !temp_inicial || !temp_final || !humedad_relativa_inicial || !humedad_relativa_final || !presion_atmosferica || !numero_informe) {
+    if (!mac_address || !instrumento || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !emp || !temp_inicial || !temp_final || !humedad_relativa_inicial || !humedad_relativa_final || !presion_atmosferica || !numero_informe) {
         return res.status(400).json({ message: 'Todos los campos son obligatorios para actualizar el sensor.' });
     }
 
     try {
-        // Buscar el único proceso existente
-        let id_proceso = null;
         const [procesos] = await pool.query('SELECT id FROM procesos');
-        if (procesos.length === 1) {
-            id_proceso = procesos[0].id; // Asignar el único proceso si existe
-        }
+        const id_proceso = procesos.length === 1 ? procesos[0].id : null;
 
         const result = await pool.query(
-            'UPDATE sensores SET nombre_sensor = ?, mac_address = ?, instrumento = ?, marca = ?, modelo = ?, serie = ?, resolucion = ?, intervalo_indicacion = ?, emp = ?, temp_inicial = ?, temp_final = ?, humedad_relativa_inicial = ?, humedad_relativa_final = ?, presion_atmosferica = ?, numero_informe = ?, id_proceso = ? WHERE id = ?', 
-            [nombre_sensor, mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso, id]
+            'UPDATE sensores SET mac_address = ?, instrumento = ?, marca = ?, modelo = ?, serie = ?, resolucion = ?, intervalo_indicacion = ?, emp = ?, temp_inicial = ?, temp_final = ?, humedad_relativa_inicial = ?, humedad_relativa_final = ?, presion_atmosferica = ?, numero_informe = ?, id_proceso = ? WHERE id = ?', 
+            [mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso, id]
         );
 
         if (result.affectedRows === 0) {
@@ -190,6 +175,5 @@ router.delete('/sensores', async (req, res) => {
         res.status(500).json({ message: 'Error al eliminar todos los sensores' });
     }
 });
-
 
 export default router;

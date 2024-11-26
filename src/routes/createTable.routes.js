@@ -78,6 +78,21 @@ router.get('/sensoresFaltantes', async (req, res) => {
     }
 });
 
+router.get('/eliminarCampoNombreSensor', async (req, res) => {
+    try {
+        // Query para eliminar la columna nombre_sensor de la tabla procesos
+        await pool.query(`
+            ALTER TABLE procesos
+            DROP COLUMN nombre_sensor;
+        `);
+
+        res.json({ message: 'Campo nombre_sensor eliminado de la tabla procesos.' });
+    } catch (error) {
+        console.error('Error al eliminar el campo nombre_sensor:', error);
+        res.status(500).json({ message: 'Error al eliminar el campo nombre_sensor', error });
+    }
+});
+
 router.get('/agregarProcesosCampos', async (req, res) => {
     try {
         // Query para agregar las columnas necesarias
