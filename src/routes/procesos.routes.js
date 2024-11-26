@@ -11,28 +11,29 @@ const formatDate = (dateString) => {
 };
 
 // Obtener todos los procesos
-router.get('/processes', async (req, res) => {
+router.get('/process', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM procesos');
         if (rows.length === 0) {
             return res.status(204).json({ message: 'No hay procesos disponibles' }); // 204 No Content
         }
 
-        // Formatear las fechas de todos los procesos y devolver el array completo
-        const procesos = rows.map(proceso => ({
-            ...proceso,
-            calibrado_patron: formatDate(proceso.calibrado_patron),
-            prox_calibracion_patron: formatDate(proceso.prox_calibracion_patron),
-            fecha_verificacion: formatDate(proceso.fecha_verificacion),
-            proxima_verificacion: formatDate(proceso.proxima_verificacion),
-        }));
+        // Seleccionar el primer proceso y formatear las fechas
+        const proceso = {
+            ...rows[0], // Tomar el primer proceso
+            calibrado_patron: formatDate(rows[0].calibrado_patron),
+            prox_calibracion_patron: formatDate(rows[0].prox_calibracion_patron),
+            fecha_verificacion: formatDate(rows[0].fecha_verificacion),
+            proxima_verificacion: formatDate(rows[0].proxima_verificacion),
+        };
 
-        res.json(procesos); // Devolver todos los procesos
+        res.json(proceso); // Devolver solo el primer proceso
     } catch (error) {
-        console.error('Error al obtener los procesos:', error);
-        res.status(500).json({ message: 'Error al obtener los procesos', error: error.message });
+        console.error('Error al obtener el proceso:', error);
+        res.status(500).json({ message: 'Error al obtener el proceso', error: error.message });
     }
 });
+
 
 // Obtener un proceso específico por ID
 router.get('/processes/:id', async (req, res) => {
