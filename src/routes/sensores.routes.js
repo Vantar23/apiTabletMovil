@@ -42,21 +42,22 @@ router.get('/sensores/macaddresses', async (req, res) => {
         const [rows] = await pool.query('SELECT mac_address FROM sensores');
 
         if (rows.length === 0) {
-            return res.status(404).json({ message: 'No se encontraron sensores con MAC Addresses' });
+            return res.status(404).send('No se encontraron sensores con MAC Addresses');
         }
 
         // Formatear las MAC Addresses al formato xx:xx:xx:xx:xx:xx
         const macAddresses = rows.map(row => {
             const mac = row.mac_address.toLowerCase(); // Convertir a minúsculas
             return mac.match(/.{1,2}/g).join(':'); // Insertar los dos puntos entre cada par
-        });
+        }).join(', '); // Unir todas las MAC Addresses con comas
 
-        res.json({ macAddresses });
+        res.send(macAddresses);
     } catch (error) {
         console.error('Error al obtener las MAC Addresses:', error.message);
-        res.status(500).json({ message: 'Error al obtener las MAC Addresses', error: error.message });
+        res.status(500).send('Error al obtener las MAC Addresses');
     }
 });
+
 
 
 // Obtener un sensor específico por ID
