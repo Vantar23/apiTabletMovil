@@ -83,18 +83,27 @@ router.post('/sensores', async (req, res) => {
     const sensores = Array.isArray(req.body) ? req.body : [req.body];
 
     try {
+        // Verificar la cantidad actual de sensores en la tabla
         const [rows] = await pool.query('SELECT COUNT(*) as cantidad FROM sensores');
         const cantidadActual = rows[0].cantidad;
+
+        // Validar que no se exceda el límite de 12 sensores
         if (cantidadActual + sensores.length > 12) {
             return res.status(400).json({ message: 'Se ha excedido el límite de 12 sensores.' });
         }
 
+        // Obtener el único proceso de la tabla 'procesos'
         const [procesos] = await pool.query('SELECT id FROM procesos');
+
+        // Verificar que haya exactamente un proceso
         if (procesos.length !== 1) {
             return res.status(500).json({ message: 'Error: Debe haber exactamente un proceso en la tabla procesos.' });
         }
+
+        // Obtener el ID del proceso
         const id_proceso = procesos[0].id;
 
+        // Procesar cada sensor del cuerpo de la solicitud
         for (const sensor of sensores) {
             const {
                 Instrumento,
@@ -113,6 +122,7 @@ router.post('/sensores', async (req, res) => {
                 Numero_de_Informe
             } = sensor;
 
+            // Validar que todos los campos requeridos estén presentes
             if (
                 !Instrumento ||
                 !Marca ||
@@ -132,6 +142,7 @@ router.post('/sensores', async (req, res) => {
                 return res.status(400).json({ message: 'Todos los campos son obligatorios para cada sensor.' });
             }
 
+            // Insertar los datos del sensor en la base de datos
             await pool.query(
                 `INSERT INTO sensores (instrumento, marca, modelo, mac_address, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -155,12 +166,15 @@ router.post('/sensores', async (req, res) => {
             );
         }
 
+        // Responder con éxito
         res.json({ message: 'Sensores creados con éxito' });
     } catch (error) {
+        // Manejo de errores
         console.error('Error al crear los sensores:', error);
         res.status(500).json({ message: 'Error al crear los sensores', error });
     }
 });
+
 
 
 // Editar un sensor por ID
