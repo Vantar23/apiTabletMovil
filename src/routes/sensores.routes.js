@@ -104,7 +104,7 @@ router.post('/sensores', async (req, res) => {
         const id_proceso = procesos[0].id;
 
         // Procesar cada sensor del cuerpo de la solicitud
-        for (const sensor of sensores) {
+        for (const [index, sensor] of sensores.entries()) {
             const {
                 Instrumento,
                 Marca,
@@ -122,24 +122,29 @@ router.post('/sensores', async (req, res) => {
                 Numero_de_Informe
             } = sensor;
 
-            // Validar que todos los campos requeridos estén presentes
-            if (
-                !Instrumento ||
-                !Marca ||
-                !Modelo ||
-                !MacAdress ||
-                !Serie ||
-                !Resolución ||
-                !Intervalo_de_indicación ||
-                !EMP ||
-                !Temperatura_inicial ||
-                !Temperatura_final ||
-                !Humedad_relativa_inicial ||
-                !Humedad_relativa_final ||
-                !Presión_atmosférica ||
-                !Numero_de_Informe
-            ) {
-                return res.status(400).json({ message: 'Todos los campos son obligatorios para cada sensor.' });
+            // Crear un array con los campos faltantes
+            const camposFaltantes = [];
+
+            if (!Instrumento) camposFaltantes.push('Instrumento');
+            if (!Marca) camposFaltantes.push('Marca');
+            if (!Modelo) camposFaltantes.push('Modelo');
+            if (!MacAdress) camposFaltantes.push('MacAdress');
+            if (!Serie) camposFaltantes.push('Serie');
+            if (!Resolución) camposFaltantes.push('Resolución');
+            if (!Intervalo_de_indicación) camposFaltantes.push('Intervalo_de_indicación');
+            if (!EMP) camposFaltantes.push('EMP');
+            if (!Temperatura_inicial) camposFaltantes.push('Temperatura_inicial');
+            if (!Temperatura_final) camposFaltantes.push('Temperatura_final');
+            if (!Humedad_relativa_inicial) camposFaltantes.push('Humedad_relativa_inicial');
+            if (!Humedad_relativa_final) camposFaltantes.push('Humedad_relativa_final');
+            if (!Presión_atmosférica) camposFaltantes.push('Presión_atmosférica');
+            if (!Numero_de_Informe) camposFaltantes.push('Numero_de_Informe');
+
+            // Si hay campos faltantes, responder con un error específico
+            if (camposFaltantes.length > 0) {
+                return res.status(400).json({ 
+                    message: `El sensor en la posición ${index + 1} tiene campos faltantes: ${camposFaltantes.join(', ')}` 
+                });
             }
 
             // Insertar los datos del sensor en la base de datos
