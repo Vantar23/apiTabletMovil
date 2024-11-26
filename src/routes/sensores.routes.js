@@ -176,37 +176,107 @@ router.post('/sensores', async (req, res) => {
     }
 });
 
-
-
-
-
 // Editar un sensor por ID
 router.put('/sensores/:id', async (req, res) => {
     const { id } = req.params;
-    const { mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = req.body;
 
-    if (!mac_address || !instrumento || !marca || !modelo || !serie || !resolucion || !intervalo_indicacion || !emp || !temp_inicial || !temp_final || !humedad_relativa_inicial || !humedad_relativa_final || !presion_atmosferica || !numero_informe) {
+    // Extraer los datos del cuerpo de la solicitud en minúsculas
+    const {
+        macadress,
+        instrumento,
+        marca,
+        modelo,
+        serie,
+        resolucion,
+        intervalo_de_indicacion,
+        emp,
+        temperatura_inicial,
+        temperatura_final,
+        humedad_relativa_inicial,
+        humedad_relativa_final,
+        presion_atmosferica,
+        numero_de_informe
+    } = req.body;
+
+    // Validar que todos los campos estén presentes
+    if (
+        !macadress || 
+        !instrumento || 
+        !marca || 
+        !modelo || 
+        !serie || 
+        !resolucion || 
+        !intervalo_de_indicacion || 
+        !emp || 
+        !temperatura_inicial || 
+        !temperatura_final || 
+        !humedad_relativa_inicial || 
+        !humedad_relativa_final || 
+        !presion_atmosferica || 
+        !numero_de_informe
+    ) {
         return res.status(400).json({ message: 'Todos los campos son obligatorios para actualizar el sensor.' });
     }
 
     try {
+        // Obtener el único proceso de la tabla 'procesos'
         const [procesos] = await pool.query('SELECT id FROM procesos');
         const id_proceso = procesos.length === 1 ? procesos[0].id : null;
 
-        const result = await pool.query(
-            'UPDATE sensores SET mac_address = ?, instrumento = ?, marca = ?, modelo = ?, serie = ?, resolucion = ?, intervalo_indicacion = ?, emp = ?, temp_inicial = ?, temp_final = ?, humedad_relativa_inicial = ?, humedad_relativa_final = ?, presion_atmosferica = ?, numero_informe = ?, id_proceso = ? WHERE id = ?', 
-            [mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso, id]
+        if (!id_proceso) {
+            return res.status(500).json({ message: 'Error: Debe haber exactamente un proceso en la tabla procesos.' });
+        }
+
+        // Actualizar el sensor en la base de datos
+        const [result] = await pool.query(
+            `UPDATE sensores 
+             SET mac_address = ?, 
+                 instrumento = ?, 
+                 marca = ?, 
+                 modelo = ?, 
+                 serie = ?, 
+                 resolucion = ?, 
+                 intervalo_indicacion = ?, 
+                 emp = ?, 
+                 temp_inicial = ?, 
+                 temp_final = ?, 
+                 humedad_relativa_inicial = ?, 
+                 humedad_relativa_final = ?, 
+                 presion_atmosferica = ?, 
+                 numero_informe = ?, 
+                 id_proceso = ? 
+             WHERE id = ?`, 
+            [
+                macadress,
+                instrumento,
+                marca,
+                modelo,
+                serie,
+                resolucion,
+                intervalo_de_indicacion,
+                emp,
+                temperatura_inicial,
+                temperatura_final,
+                humedad_relativa_inicial,
+                humedad_relativa_final,
+                presion_atmosferica,
+                numero_de_informe,
+                id
+            ]
         );
 
+        // Verificar si se encontró el sensor
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Sensor no encontrado' });
         }
+
         res.json({ message: 'Sensor actualizado con éxito' });
     } catch (error) {
         console.error('Error al actualizar el sensor:', error);
         res.status(500).json({ message: 'Error al actualizar el sensor' });
     }
 });
+
 
 // Eliminar un sensor por ID
 router.delete('/sensores/:id', async (req, res) => {
