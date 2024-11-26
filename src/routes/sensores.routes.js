@@ -96,11 +96,26 @@ router.post('/sensores', async (req, res) => {
         const id_proceso = procesos[0].id;
 
         for (const sensor of sensores) {
-            const { mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe } = sensor;
+            const {
+                MacAdress,
+                Instrumento,
+                Marca,
+                Modelo,
+                Resolución,
+                Intervalo_de_indicación,
+                EMP,
+                Temperatura_inicial,
+                Temperatura_final,
+                Humedad_relativa_inicial,
+                Humedad_relativa_final,
+                Presión_atmosférica,
+                Numero_de_Informe,
+                Serie
+            } = sensor;
 
             if (
-                !Instrumento || 
                 !MacAdress || 
+                !Instrumento || 
                 !Marca || 
                 !Modelo || 
                 !Resolución || 
@@ -120,7 +135,23 @@ router.post('/sensores', async (req, res) => {
             await pool.query(
                 `INSERT INTO sensores (mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [mac_address, instrumento, marca, modelo, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso]
+                [
+                    MacAdress,
+                    Instrumento,
+                    Marca,
+                    Modelo,
+                    Serie,
+                    Resolución,
+                    Intervalo_de_indicación,
+                    EMP,
+                    Temperatura_inicial,
+                    Temperatura_final,
+                    Humedad_relativa_inicial,
+                    Humedad_relativa_final,
+                    Presión_atmosférica,
+                    Numero_de_Informe,
+                    id_proceso
+                ]
             );
         }
 
