@@ -113,7 +113,6 @@ router.post('/sensores', async (req, res) => {
             marca,
             modelo,
             macadress,
-            serie,
             resolucion,
             intervalo_de_indicacion,
             emp,
@@ -132,7 +131,6 @@ router.post('/sensores', async (req, res) => {
         if (!marca) camposFaltantes.push('marca');
         if (!modelo) camposFaltantes.push('modelo');
         if (!macadress) camposFaltantes.push('macadress');
-        if (!serie) camposFaltantes.push('serie');
         if (!resolucion) camposFaltantes.push('resolucion');
         if (!intervalo_de_indicacion) camposFaltantes.push('intervalo_de_indicacion');
         if (!emp) camposFaltantes.push('emp');
@@ -152,14 +150,13 @@ router.post('/sensores', async (req, res) => {
 
         // Insertar los datos del sensor en la base de datos
         await pool.query(
-            `INSERT INTO sensores (instrumento, marca, modelo, mac_address, serie, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso) 
+            `INSERT INTO sensores (instrumento, marca, modelo, mac_address, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 instrumento,
                 marca,
                 modelo,
                 macadress,
-                serie,
                 resolucion,
                 intervalo_de_indicacion,
                 emp,
@@ -193,7 +190,6 @@ router.put('/sensores/:id', async (req, res) => {
         marca,
         modelo,
         macadress,
-        serie,
         resolucion,
         intervalo_de_indicacion,
         emp,
@@ -211,7 +207,6 @@ router.put('/sensores/:id', async (req, res) => {
     if (!marca) camposFaltantes.push('marca');
     if (!modelo) camposFaltantes.push('modelo');
     if (!macadress) camposFaltantes.push('macadress');
-    if (!serie) camposFaltantes.push('serie');
     if (!resolucion) camposFaltantes.push('resolucion');
     if (!intervalo_de_indicacion) camposFaltantes.push('intervalo_de_indicacion');
     if (!emp) camposFaltantes.push('emp');
@@ -243,8 +238,7 @@ router.put('/sensores/:id', async (req, res) => {
              SET instrumento = ?, 
                  marca = ?, 
                  modelo = ?, 
-                 mac_address = ?, 
-                 serie = ?, 
+                 mac_address = ?,
                  resolucion = ?, 
                  intervalo_indicacion = ?, 
                  emp = ?, 
@@ -261,7 +255,6 @@ router.put('/sensores/:id', async (req, res) => {
                 marca,
                 modelo,
                 macadress,
-                serie,
                 resolucion,
                 intervalo_de_indicacion,
                 emp,
