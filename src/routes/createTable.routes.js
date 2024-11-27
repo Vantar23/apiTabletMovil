@@ -27,7 +27,7 @@ router.get('/muestra-cadena', async (req, res) => {
         // Agregar sensores a la cadena con "!" al principio de cada sensor
         sensores.forEach((sensor, index) => {
             const consecutivo = (index + 1).toString(); // Consecutivo como string
-            cadena += `!${consecutivo},${sensor.instrumento || ''},${sensor.mac_address || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},${sensor.temp_inicial || ''},${sensor.temp_final || ''},${sensor.humedad_relativa_inicial || ''},${sensor.humedad_relativa_final || ''},${sensor.presion_atmosferica || ''},${sensor.numero_informe || ''},`;
+            cadena += `!${consecutivo},${sensor.instrumento || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.mac_address || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},${sensor.temp_inicial || ''},${sensor.temp_final || ''},${sensor.humedad_relativa_inicial || ''},${sensor.humedad_relativa_final || ''},${sensor.presion_atmosferica || ''},${sensor.numero_informe || ''},`;
         });
 
         // Mostrar la cadena generada en la respuesta
