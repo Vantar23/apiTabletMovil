@@ -85,6 +85,7 @@ router.get('/sensores/:id', async (req, res) => {
 });
 
 // Crear un nuevo sensor
+// Crear un nuevo sensor
 router.post('/sensores', async (req, res) => {
     try {
         // Verificar la cantidad actual de sensores en la tabla
@@ -112,16 +113,16 @@ router.post('/sensores', async (req, res) => {
             instrumento,
             marca,
             modelo,
-            macadress,
+            mac_address, // Corregido
             resolucion,
-            intervalo_de_indicacion,
+            intervalo_indicacion, // Corregido
             emp,
-            temperatura_inicial,
-            temperatura_final,
+            temp_inicial, // Corregido
+            temp_final, // Corregido
             humedad_relativa_inicial,
             humedad_relativa_final,
             presion_atmosferica,
-            numero_de_informe
+            numero_informe
         } = req.body;
 
         // Crear un array con los campos faltantes
@@ -130,16 +131,16 @@ router.post('/sensores', async (req, res) => {
         if (!instrumento) camposFaltantes.push('instrumento');
         if (!marca) camposFaltantes.push('marca');
         if (!modelo) camposFaltantes.push('modelo');
-        if (!macadress) camposFaltantes.push('macadress');
+        if (!mac_address) camposFaltantes.push('mac_address');
         if (!resolucion) camposFaltantes.push('resolucion');
-        if (!intervalo_de_indicacion) camposFaltantes.push('intervalo_de_indicacion');
+        if (!intervalo_indicacion) camposFaltantes.push('intervalo_indicacion');
         if (!emp) camposFaltantes.push('emp');
-        if (!temperatura_inicial) camposFaltantes.push('temperatura_inicial');
-        if (!temperatura_final) camposFaltantes.push('temperatura_final');
+        if (!temp_inicial) camposFaltantes.push('temp_inicial');
+        if (!temp_final) camposFaltantes.push('temp_final');
         if (!humedad_relativa_inicial) camposFaltantes.push('humedad_relativa_inicial');
         if (!humedad_relativa_final) camposFaltantes.push('humedad_relativa_final');
         if (!presion_atmosferica) camposFaltantes.push('presion_atmosferica');
-        if (!numero_de_informe) camposFaltantes.push('numero_de_informe');
+        if (!numero_informe) camposFaltantes.push('numero_informe');
 
         // Si hay campos faltantes, responder con un error específico
         if (camposFaltantes.length > 0) {
@@ -151,21 +152,21 @@ router.post('/sensores', async (req, res) => {
         // Insertar los datos del sensor en la base de datos
         await pool.query(
             `INSERT INTO sensores (instrumento, marca, modelo, mac_address, resolucion, intervalo_indicacion, emp, temp_inicial, temp_final, humedad_relativa_inicial, humedad_relativa_final, presion_atmosferica, numero_informe, id_proceso) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 instrumento,
                 marca,
                 modelo,
-                macadress,
+                mac_address,
                 resolucion,
-                intervalo_de_indicacion,
+                intervalo_indicacion,
                 emp,
-                temperatura_inicial,
-                temperatura_final,
+                temp_inicial,
+                temp_final,
                 humedad_relativa_inicial,
                 humedad_relativa_final,
                 presion_atmosferica,
-                numero_de_informe,
+                numero_informe,
                 id_proceso
             ]
         );
@@ -179,6 +180,7 @@ router.post('/sensores', async (req, res) => {
     }
 });
 
+
 // Editar un sensor por ID
 // Editar un sensor por ID
 router.put('/sensores/:id', async (req, res) => {
@@ -189,16 +191,16 @@ router.put('/sensores/:id', async (req, res) => {
         instrumento,
         marca,
         modelo,
-        macadress,
+        mac_address, // Corregido
         resolucion,
-        intervalo_de_indicacion,
+        intervalo_indicacion, // Corregido
         emp,
-        temperatura_inicial,
-        temperatura_final,
+        temp_inicial, // Corregido
+        temp_final, // Corregido
         humedad_relativa_inicial,
         humedad_relativa_final,
         presion_atmosferica,
-        numero_de_informe
+        numero_informe
     } = req.body;
 
     // Validar que todos los campos estén presentes
@@ -206,16 +208,16 @@ router.put('/sensores/:id', async (req, res) => {
     if (!instrumento) camposFaltantes.push('instrumento');
     if (!marca) camposFaltantes.push('marca');
     if (!modelo) camposFaltantes.push('modelo');
-    if (!macadress) camposFaltantes.push('macadress');
+    if (!mac_address) camposFaltantes.push('mac_address');
     if (!resolucion) camposFaltantes.push('resolucion');
-    if (!intervalo_de_indicacion) camposFaltantes.push('intervalo_de_indicacion');
+    if (!intervalo_indicacion) camposFaltantes.push('intervalo_indicacion');
     if (!emp) camposFaltantes.push('emp');
-    if (!temperatura_inicial) camposFaltantes.push('temperatura_inicial');
-    if (!temperatura_final) camposFaltantes.push('temperatura_final');
+    if (!temp_inicial) camposFaltantes.push('temp_inicial');
+    if (!temp_final) camposFaltantes.push('temp_final');
     if (!humedad_relativa_inicial) camposFaltantes.push('humedad_relativa_inicial');
     if (!humedad_relativa_final) camposFaltantes.push('humedad_relativa_final');
     if (!presion_atmosferica) camposFaltantes.push('presion_atmosferica');
-    if (!numero_de_informe) camposFaltantes.push('numero_de_informe');
+    if (!numero_informe) camposFaltantes.push('numero_informe');
 
     if (camposFaltantes.length > 0) {
         return res.status(400).json({ 
@@ -238,7 +240,7 @@ router.put('/sensores/:id', async (req, res) => {
              SET instrumento = ?, 
                  marca = ?, 
                  modelo = ?, 
-                 mac_address = ?,
+                 mac_address = ?, 
                  resolucion = ?, 
                  intervalo_indicacion = ?, 
                  emp = ?, 
@@ -254,16 +256,16 @@ router.put('/sensores/:id', async (req, res) => {
                 instrumento,
                 marca,
                 modelo,
-                macadress,
+                mac_address, // Corregido
                 resolucion,
-                intervalo_de_indicacion,
+                intervalo_indicacion, // Corregido
                 emp,
-                temperatura_inicial,
-                temperatura_final,
+                temp_inicial, // Corregido
+                temp_final, // Corregido
                 humedad_relativa_inicial,
                 humedad_relativa_final,
                 presion_atmosferica,
-                numero_de_informe,
+                numero_informe,
                 id_proceso,
                 id
             ]
@@ -280,6 +282,7 @@ router.put('/sensores/:id', async (req, res) => {
         res.status(500).json({ message: 'Error al actualizar el sensor', error });
     }
 });
+
 
 
 
