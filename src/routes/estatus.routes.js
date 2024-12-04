@@ -10,7 +10,7 @@ router.put('/estatus/:id', async (req, res) => {
 
     try {
         // Actualizar el estatus del subproceso
-        const [result] = await pool.query('UPDATE subprocesos SET estatus = ? WHERE id_subproceso = ?', [estatus, id]);
+        const [result] = await pool.query('UPDATE subprocesos SET estatus = ? WHERE id = ?', [estatus, id]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Subproceso no encontrado' });
         }
@@ -22,7 +22,7 @@ router.put('/estatus/:id', async (req, res) => {
 
         // Construir la cadena para enviar
         let cadena = '';
-        
+
         // Agregar procesos a la cadena
         procesos.forEach(proceso => {
             cadena += `${proceso.id || ''},${proceso.nombre || ''},${proceso.descripcion || ''},${proceso.estandar || ''},${proceso.marca || ''},${proceso.modelo || ''},${proceso.serie || ''},${proceso.resolucion || ''},${proceso.intervalo_indicacion || ''},${proceso.calibrado_patron || ''},${proceso.prox_calibracion_patron || ''},${proceso.fecha_verificacion || ''},${proceso.proxima_verificacion || ''},`;
