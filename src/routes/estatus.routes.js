@@ -4,16 +4,25 @@ import axios from 'axios';
 
 const router = Router();
 
-async function crearCadena() {
+router.put('/estatus/:id', async (req, res) => {
+    const { id } = req.params;
+    const { estatus } = req.body;
+
     try {
+        // Actualizar el estatus del subproceso
+        const [result] = await pool.query('UPDATE subprocesos SET estatus = ? WHERE id_subproceso = ?', [estatus, id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Subproceso no encontrado' });
+        }
+
         // Obtener todos los datos de procesos, subprocesos y sensores
         const [procesos] = await pool.query('SELECT * FROM procesos');
         const [subprocesos] = await pool.query('SELECT * FROM subprocesos');
         const [sensores] = await pool.query('SELECT * FROM sensores');
 
-        // Construir la cadena de envío
+        // Construir la cadena para enviar
         let cadena = '';
-
+        
         // Agregar procesos a la cadena
         procesos.forEach(proceso => {
             cadena += `${proceso.id || ''},${proceso.nombre || ''},${proceso.descripcion || ''},${proceso.estandar || ''},${proceso.marca || ''},${proceso.modelo || ''},${proceso.serie || ''},${proceso.resolucion || ''},${proceso.intervalo_indicacion || ''},${proceso.calibrado_patron || ''},${proceso.prox_calibracion_patron || ''},${proceso.fecha_verificacion || ''},${proceso.proxima_verificacion || ''},`;
@@ -29,26 +38,6 @@ async function crearCadena() {
             const consecutivo = (index + 1).toString(); // Consecutivo como string
             cadena += `!${consecutivo},${sensor.instrumento || ''},${sensor.mac_address || ''},${sensor.marca || ''},${sensor.modelo || ''},${sensor.resolucion || ''},${sensor.intervalo_indicacion || ''},${sensor.emp || ''},${sensor.temp_inicial || ''},${sensor.temp_final || ''},${sensor.humedad_relativa_inicial || ''},${sensor.humedad_relativa_final || ''},${sensor.presion_atmosferica || ''},${sensor.numero_informe || ''},`;
         });
-
-        return cadena;
-    } catch (error) {
-        throw new Error('Error al crear la cadena: ' + error.message);
-    }
-}
-
-router.put('/estatus/:id', async (req, res) => {
-    const { id } = req.params;
-    const { estatus } = req.body;
-
-    try {
-        // Actualizar el estatus del subproceso
-        const [result] = await pool.query('UPDATE subprocesos SET estatus = ? WHERE id_subproceso = ?', [estatus, id]);
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Subproceso no encontrado' });
-        }
-
-        // Crear la cadena reutilizando la función
-        const cadena = await crearCadena();
 
         // Preparar los datos para el envío POST
         const url = 'https://controlware.com.mx/recibe_avimex_tablet.asp';
@@ -74,3 +63,6 @@ router.put('/estatus/:id', async (req, res) => {
         res.status(500).json({ message: 'Error al actualizar el estatus del subproceso', error: error.message });
     }
 });
+
+
+export default router;
